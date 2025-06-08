@@ -1,0 +1,30 @@
+/* 设置文档布局区域 */
+@layer base {
+  .docs-container {
+    display: grid;
+    grid-template-columns: 16rem minmax(0, 1fr) 20rem;
+    gap: 1.5rem;
+  }
+
+  /* 可选：限制最大宽度 */
+  .docs-container-wrapper {
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* 调整 TOC 的固定宽度 */
+  .docs-toc {
+    width: 20rem;
+  }
+
+  /* 调整左侧菜单栏的宽度 */
+  .docs-sidebar {
+    width: 16rem;
+  }
+}
+@media (max-width: 1024px) {
+  .docs-container {
+    grid-template-columns: 1fr; /* 移动端只显示中间正文 */
+  }
+}
