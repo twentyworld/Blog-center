@@ -1,48 +1,10 @@
+---
+title: zookeeper
+type: docs
+---
+
 # 章节目录
-- [章节目录](#章节目录)
-- [1. zookeeper 是什么](#1-zookeeper-是什么)
-  - [1.1. zookeeper的设计目标](#11-zookeeper的设计目标)
-- [2. Zookeeper的实现逻辑](#2-zookeeper的实现逻辑)
-  - [2.1. Znode](#21-znode)
-    - [2.1.1. znode的字段](#211-znode的字段)
-      - [2.1.1.1. zxid 说明](#2111-zxid-说明)
-      - [2.1.1.2. version 说明](#2112-version-说明)
-      - [2.1.1.3. ACL(Access Control List,访问控制列表 )](#2113-aclaccess-control-list访问控制列表-)
-    - [2.1.2. zookeeper的节点类型](#212-zookeeper的节点类型)
-      - [2.1.2.1. 持久节点](#2121-持久节点)
-      - [2.1.2.2. 持久顺序节点](#2122-持久顺序节点)
-      - [2.1.2.3. 临时节点(EPHEMERAL)](#2123-临时节点ephemeral)
-      - [2.1.2.4. 临时顺序节点(EPHEMERAL SEQUENTIAL)](#2124-临时顺序节点ephemeral-sequential)
-    - [2.1.3. 节点客户端方法](#213-节点客户端方法)
-  - [2.2. Watches](#22-watches)
-    - [2.2.1. watches架构](#221-watches架构)
-      - [2.2.1.1. 监听的作用域](#2211-监听的作用域)
-      - [2.2.1.2. watch注册流程](#2212-watch注册流程)
-      - [2.2.1.3. Watcher通知流程](#2213-watcher通知流程)
-    - [2.2.2. watches 示例](#222-watches-示例)
-- [3. ZAB 选举与一致性](#3-zab-选举与一致性)
-  - [3.1. 概念理解](#31-概念理解)
-    - [3.1.1. Zookeeper 服务器的角色](#311-zookeeper-服务器的角色)
-    - [3.1.2. Zookeeper 服务器的状态](#312-zookeeper-服务器的状态)
-    - [3.1.3. Zookeeper 通信](#313-zookeeper-通信)
-    - [3.1.4. Zookeeper 集群](#314-zookeeper-集群)
-  - [3.2. ZAB 协议](#32-zab-协议)
-    - [3.2.1. ZAB 协议上的一些基础概念](#321-zab-协议上的一些基础概念)
-      - [3.2.1.1. **election epoch**](#3211-election-epoch)
-      - [3.2.1.2. zxid](#3212-zxid)
-    - [3.2.2. ZAB 协议的几个阶段](#322-zab-协议的几个阶段)
-    - [3.2.3. 触发选主的场景](#323-触发选主的场景)
-      - [3.2.3.1. leader节点异常](#3231-leader节点异常)
-      - [3.2.3.2. 多数Follower节点异常](#3232-多数follower节点异常)
-  - [3.3. ZAB 选主阶段](#33-zab-选主阶段)
-    - [3.3.1. 启动中的Leader选举](#331-启动中的leader选举)
-    - [3.3.2. 运行中的leader选举](#332-运行中的leader选举)
-    - [3.3.3. Leader选举的代码实现](#333-leader选举的代码实现)
-- [4. zookeeper的一些实现](#4-zookeeper的一些实现)
-  - [4.1. 配置(注册)中心](#41-配置注册中心)
-  - [4.2. 分布式锁](#42-分布式锁)
-  - [4.3. 分布式队列](#43-分布式队列)
-  - [4.4. 分布式ID生成](#44-分布式id生成)
+
 # 1. zookeeper 是什么
 依据官方网站：
 > ZooKeeper is a centralized service for maintaining configuration information, naming, providing distributed synchronization, and providing group services.All of these kinds of services are used in some form or another by distributed applications. Each time they are implemented there is a lot of work that goes into fixing the bugs and race conditions that are inevitable. Because of the difficulty of implementing these kinds of services, applications initially usually skimp on them, which make them brittle in the presence of change and difficult to manage. Even when done correctly, different implementations of these services lead to management complexity when the applications are deployed.
@@ -171,7 +133,7 @@ Watcher实现由三个部分组成：
 
 客户端首先将Watcher注册到服务端，同时将Watcher对象保存到客户端的Watch管理器中。当ZooKeeper服务端监听的数据状态发生变化时，服务端会主动通知客户端，接着客户端的Watch管理器会触发相关Watcher来回调相应处理逻辑，从而完成整体的数据发布/订阅流程。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watches.png" alt="watches 架构" style="zoom:50%;" />
+![watches 架构](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watches.png)
 
 zk客户端向zk服务器注册watcher的同时，会将watcher对象存储在客户端的watchManager。
 
@@ -186,20 +148,20 @@ zk客户端向zk服务器注册watcher的同时，会将watcher对象存储在�
 
 #### 2.2.1.1. 监听的作用域
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watch-listen.png" alt="watch-listen" style="zoom:67%;" />
+![watch-listen](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watch-listen.png)
 
 加入小红旗是一个watcher，当小红旗被创建并注册到node1节点(会有相应的API实现)后，就会监听node1+node_a+node_b或node_a+node_b。**这里两种情况是因为在创建watcher注册时会有多种途径。并且watcher不能监听到孙节点**。**<u>请注意，watcher设置后，一旦触发一次后就会失效，如果要想一直监听，需要在process回调函数里重新注册相同的 watcher。</u>**
 
 #### 2.2.1.2. watch注册流程
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watch-logic.png" alt="watch-logic" style="zoom: 67%;" />
+![watch-logic](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watch-logic.png)
 
 1. 客户端发送的请求中只包含是否需要注册Watcher，不会将Watcher实体发送
 2. Packet构造函数中的参数WatchRegistration是Watcher的封装体，用于服务响应成功后将Watcher保存到ZKWatchManager中
 
 #### 2.2.1.3. Watcher通知流程
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watch-inform-logic.png" alt="watch-inform-logic" style="zoom:67%;" />
+![watch-inform-logic](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watch-inform-logic.png)
 
 ### 2.2.2. watches 示例
 
@@ -230,7 +192,7 @@ ZAB的理解：所有事务请求是由一个全局唯一的服务器来协调�
 2. Follower: 处理客户端非事务请求，转发事务请求给Leader服务器，参与事务请求Proposal的投票，参与Leader的选举投票。
 3. Observer：处理客户端非事务请求，转发事务请求给Leader服务器，不参加任何形式的投票，包括选举和事务投票(超过半数确认)，Observer的存在是为了提高zk集群对外提供读性能的能力。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/zookeeper-server-status.png" alt="zookeeper-server-status" style="zoom:67%;" />
+![zookeeper-server-status](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/zookeeper-server-status.png)
 
 ### 3.1.2. Zookeeper 服务器的状态
 

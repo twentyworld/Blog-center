@@ -1,3 +1,8 @@
+---
+title: spring-aop
+type: docs
+---
+
 ## Spring本质系列之AOP
 
 ### 问题来源
@@ -111,7 +116,7 @@ cmd.execute();
 注意：现在Transaction这个类和业务类在源代码层次上没有一点关系，完全隔离了。
 
 隔离是一件好事情， 但是马上给我们带来了大麻烦 。
- 
+
 Java 是一门静态的强类型语言， 代码一旦写好， 编译成java class 以后 ，可以在运行时通过反射（Reflection）来查看类的信息， 但是想对类进行修改非常困难。 
 
 而AOP要求的恰恰就是在不改变业务类的源代码（其实大部分情况下你也拿不到）的情况下， 修改业务类的方法, 进行功能的增强，就像上面给所有的业务类增加事务支持。
@@ -127,3 +132,17 @@ Java 是一门静态的强类型语言， 代码一旦写好， 编译成java cl
 Spring采用的就是(1) +(2) 的方式，限于篇幅，这里不再展开各种技术了， 不管使用哪一种方式， 在运行时，真正干活的“业务类”其实已经不是原来单纯的业务类了， 它们被AOP了 ！
 
 本文转载自“码农翻身”公众号
+
+
+
+
+
+
+
+
+
+
+
+
+
+ [doris](../../../../../Library/Mobile Documents/com~apple~CloudDocs/知识沉淀/OLAP/doris)  [Doris.md](../../../../../Library/Mobile Documents/com~apple~CloudDocs/知识沉淀/OLAP/Doris.md)  [druid](../../../../../Library/Mobile Documents/com~apple~CloudDocs/知识沉淀/OLAP/druid)  [Druid.md](../../../../../Library/Mobile Documents/com~apple~CloudDocs/知识沉淀/OLAP/Druid.md)  [HBase.md](../../../../../Library/Mobile Documents/com~apple~CloudDocs/知识沉淀/OLAP/HBase.md)  [HDFS.md](../../../../../Library/Mobile Documents/com~apple~CloudDocs/知识沉淀/OLAP/HDFS.md)  [olap](../../../../../Library/Mobile Documents/com~apple~CloudDocs/知识沉淀/OLAP/olap)  [OLAP.md](../../../../../Library/Mobile Documents/com~apple~CloudDocs/知识沉淀/OLAP/OLAP.md) 

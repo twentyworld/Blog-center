@@ -1,3 +1,8 @@
+---
+title: nginx
+type: docs
+---
+
 ## nginx
 
 1\. 反向代理和正向代理

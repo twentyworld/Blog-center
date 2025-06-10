@@ -1,3 +1,8 @@
+---
+title: 2. Interceptor的使用方法
+type: docs
+---
+
 # `Interceptor`的使用方法
 
 >本文前三章节全文copy自作者`维C果糖`,文章出自`CSDN`。本文仅做学习记录使用。

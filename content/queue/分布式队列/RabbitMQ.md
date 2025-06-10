@@ -1,3 +1,8 @@
+---
+title: RabbitMQ
+type: docs
+---
+
 # Rabbit MQ
 
 RabbitMQ是目前非常热门的一款消息中间件，不管是互联网大厂还是中小企业都在大量使用。作为一名合格的开发者，有必要对RabbitMQ有所了解，本文是RabbitMQ快速入门文章，主要内容包括RabbitMQ是什么、RabbitMQ核心概念、常用交换器类型、用Docker安装RabbitMQ等。
@@ -44,7 +49,7 @@ AMQP在一致性客户端和消息中间件(也称为"brokers")之间创建了�
 
 <u>AMQP协议是具有现代特征的二进制协议: 它是多通道的, 协商的，异步的，安全的，便携的，自然的，高效的.</u> 其协议主要分成两层：
 
-<img src="rabbitmq\am1.png" alt="am1" style="zoom:67%;" />
+![am1](rabbitmq\am1.png)
 
 **功能层( functional layer)定义了一系列命令(分成功能独立的逻辑类)，可为应用程序做有用工作。** 
 
@@ -97,7 +102,7 @@ AMQP 0-9-1 拥有多个扩展点：
 
 下面的图显示了整体AMQ模型：
 
-<img src="rabbitmq\am2.png" alt="am2" style="zoom:67%;" />
+![am2](rabbitmq\am2.png)
 
 AMQP提供了运行时程序语义，主要有两方面：
 
@@ -131,7 +136,7 @@ AMQP定义了许多交换器类型，它们覆盖了常见消息路由分发的�
 
 ##### **`Direct`** 交换器
 
-<img src="rabbitmq/direct-exchange.png" alt="direct-exchange" style="zoom:80%;" />
+![direct-exchange](rabbitmq/direct-exchange.png)
 
 直连型交换机（direct exchange）是根据消息携带的路由键（routing key）将消息投递给对应队列的。直连交换机用来处理消息的单播路由（unicast routing）（尽管它也可以处理多播路由）。下边介绍它是如何工作的：
 
@@ -249,7 +254,7 @@ AMQP 的消息除属性外，也含有一个有效载荷 - Payload（消息实�
 
 下面的图展示了通过AMQ模块服务器的消息流：
 
-<img src="rabbitmq\am3.png" alt="am3" style="zoom:67%;" />
+![am3](rabbitmq\am3.png)
 
 ### 生命周期
 
@@ -280,7 +285,7 @@ AMQP 的消息除属性外，也含有一个有效载荷 - Payload（消息实�
 - **持久化消息队列**：由很多消费者共享。当消费者都退出后，队列依然存在，并会继续收集消息。
 - **临时消息队列：**临时消息队列对于消费者是私有和绑定的。当消费者断开连接，则消息队列被删除。
 
-<img src="rabbitmq/am4.png" alt="临时消息队列的生命周期" style="zoom:67%;" />
+![临时消息队列的生命周期](rabbitmq/am4.png)
 
 ### AMQP命令架构
 
@@ -465,7 +470,7 @@ TCP/IP是流协议。没有内置的分帧机制。现有的协议一般有这�
 
 所有的帧都由一个头(header,7个字节),任意大小的负载(payload),和一个检测错误的帧结束（frame-end）字节组成:
 
-<img src="rabbitmq/am9.png" alt="am9" style="zoom:67%;" />
+![am9](rabbitmq/am9.png)
 
 要读取一个帧，我们必须:
 
@@ -481,7 +486,7 @@ TCP/IP是流协议。没有内置的分帧机制。现有的协议一般有这�
 
 方法帧可以携带高级协议命令(我们称之为方法(methods)).一个方法帧携带一个命令. 方法帧负载有下面的格式:
 
-<img src="rabbitmq/am10.png" alt="am10" style="zoom:67%;" />
+![am10](rabbitmq/am10.png)
 
 处理方式：
 
@@ -499,7 +504,7 @@ TCP/IP是流协议。没有内置的分帧机制。现有的协议一般有这�
 
 一些方法（比如 `Basic.Publish`，`Basic.Deliver`）是会携带内容的。当一个节点发送像这样的方法帧时，它总是会遵循一个内容头帧(conent header frame)和零个或多个内容体帧(content body frame)的形式。一个内容帧的帧头如下结构：
 
-<img src="rabbitmq/am10.png" alt="am10" style="zoom:67%;" />
+![am10](rabbitmq/am10.png)
 
 我们将内容体放置在不同的帧中(并不包含在方法中)，因此AMQP可支持零拷贝技术，这样其内容就不需要编组或编码. 我们将内容属性安放在它们自己的帧中，以便收件人可以有选择地丢弃他们不想处理的内容。
 

@@ -1,6 +1,6 @@
 ---
-title: JVM
+title: 4. JVM
 type: docs
 sidebar:
-  open: false
+  open: true
 ---

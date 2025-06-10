@@ -15,7 +15,7 @@ toc: false
 ## Explore Storage and Trigger
 
 {{< cards >}}
-  {{< card link="io" title="Java IO" icon="book-open" tag="IO/Netty等" tagType="error">}}
+  <!-- {{< card link="io" title="Java IO" icon="book-open" tag="IO/Netty等" tagType="error">}} -->
   {{< card link="db" title="存储与查询" icon="book-open" tag="OLTP、OLAP等" tagType="error">}}
   {{< card link="cache" title="缓存" icon="book-open" tag="本地缓存与分布式" tagType="error">}}
   {{< card link="queue" title="队列" icon="book-open" tag="" tagType="error">}}
@@ -25,7 +25,7 @@ toc: false
 ## Explore my business
 
 {{< cards cols = "1">}}
-  {{< card link="docs" title="金融知识" icon="book-open" tag="这是个大活了" tagType="warning">}}
+  {{< card link="business" title="期权业务" icon="book-open" tag="mainly option" tagType="warning">}}
 {{< /cards >}}
 
 ## 你想要丈量我吗

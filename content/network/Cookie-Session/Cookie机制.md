@@ -1,3 +1,8 @@
+---
+title: Cookie机制
+type: docs
+---
+
 # `Cookie`机制
 
 ## 1. `Cookie`解决的问题

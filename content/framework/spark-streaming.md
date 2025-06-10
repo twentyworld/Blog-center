@@ -1,3 +1,8 @@
+---
+title: spark-streaming
+type: docs
+---
+
 ## Spark Streaming
 
 ## Spark Streaming介绍
