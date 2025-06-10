@@ -1,3 +1,8 @@
+---
+title: spring-boot
+type: docs
+---
+
 # SpringApplication
 
 启动程序首先初始化了一个SpringApplication对象。来看一看在它的构造器了发生了什么。

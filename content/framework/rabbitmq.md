@@ -1,3 +1,8 @@
+---
+title: rabbitmq
+type: docs
+---
+
 ## 重要概念
 
 1.

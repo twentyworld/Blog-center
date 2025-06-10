@@ -1,3 +1,8 @@
+---
+title: guava-cache
+type: docs
+---
+
 # 创建
 
 以CacheLoader的方式为例:

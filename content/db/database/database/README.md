@@ -1,3 +1,8 @@
+---
+title: README
+type: docs
+---
+
 # 数据库系统
 
 ## 三范式

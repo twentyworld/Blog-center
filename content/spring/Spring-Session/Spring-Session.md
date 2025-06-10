@@ -1,3 +1,8 @@
+---
+title: Spring-Session
+type: docs
+---
+
 ## Spring Session
 ---
 Spring Session provides an API and implementations for managing a user's session information.

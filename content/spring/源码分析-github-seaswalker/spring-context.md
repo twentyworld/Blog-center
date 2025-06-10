@@ -1,3 +1,8 @@
+---
+title: spring-context
+type: docs
+---
+
 # 开头
 
 入口方法在BeanDefinitionParserDelegate.parseCustomElement：

@@ -1,3 +1,8 @@
+---
+title: mysql-sharding
+type: docs
+---
+
 ## 数据库分库分表(sharding)系列拆分实施策略和示例 ##
 
 > 本文图片摘自《MySQL性能调优与架构设计》一书

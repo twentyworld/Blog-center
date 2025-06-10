@@ -1,3 +1,8 @@
+---
+title: redo log
+type: docs
+---
+
 # Redo log
 
 redo log中文一般称之为重做日志，提供了前滚操作。**<u>其核心目的是为了保证事务的持久性。</u>**

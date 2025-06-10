@@ -1,3 +1,8 @@
+---
+title: Tomcat&Jetty
+type: docs
+---
+
 # Tomcat & Jetty
 
 > 全文是对文档的记录。如果感兴趣，可以前往阅读。
@@ -103,7 +108,7 @@ Servlet 规范里定义了**ServletContext**这个接口来对应一个 Web 应�
 
 **但是整体的处理逻辑是不变的，EndPoint 负责提供字节流给 Processor，Processor 负责提供 Tomcat Request 对象给 Adapter，Adapter 负责提供 ServletRequest 对象给容器。**
 
-<img src="/Users/temperlee/Library/Application Support/typora-user-images/image-20210630193417902.png" alt="image-20210630193417902" style="zoom:67%;" />
+![image-20210630193417902](/Users/temperlee/Library/Application Support/typora-user-images/image-20210630193417902.png)
 
 ### ProtocolHandler 组件
 
@@ -147,7 +152,7 @@ APR（Apache Portable Runtime Libraries）是 Apache 可移植运行时库，它
 
 #### AprEndpoint 工作过程
 
-<img src="/Users/temperlee/Library/Application Support/typora-user-images/image-20210630195523296.png" alt="image-20210630195523296" style="zoom:67%;" />
+![image-20210630195523296](/Users/temperlee/Library/Application Support/typora-user-images/image-20210630195523296.png)
 
 ##### Acceptor
 
@@ -201,7 +206,7 @@ AprEndpoint 接收到一个新的 Socket 连接后，通过 JNI 调用 APR 中�
 
 JVM 内存只是进程空间的一部分，除此之外进程空间内还有代码段、数据段、内存映射区、内核空间等。从 JVM 的角度看，JVM 内存之外的部分叫作本地内存，C 程序代码在运行过程中用到的内存就是本地内存中分配的。
 
-<img src="/Users/temperlee/Library/Application Support/typora-user-images/image-20210630200306067.png" alt="image-20210630200306067" style="zoom:67%;" />
+![image-20210630200306067](/Users/temperlee/Library/Application Support/typora-user-images/image-20210630200306067.png)
 
 Tomcat 的 Endpoint 组件在接收网络数据时需要预先分配好一块 Buffer，所谓的 Buffer 就是字节数组`byte[]`，Java 通过 JNI 调用把这块 Buffer 的地址传给 C 代码，C 代码通过操作系统 API 读取 Socket 并把数据填充到这块 Buffer。Java NIO API 提供了两种 Buffer 来接收数据：HeapByteBuffer 和 DirectByteBuffer，下面的代码演示了如何创建两种 Buffer。
 
@@ -233,13 +238,13 @@ Tomcat 的 Endpoint 组件在接收网络数据时需要预先分配好一块 Bu
 
 Tomcat 有两个核心组件：连接器和容器，其中连接器负责外部交流，容器负责内部处理。具体来说就是，连接器处理 Socket 通信和应用层协议的解析，得到 Servlet 请求；而容器则负责处理 Servlet 请求。
 
-<img src="/Users/temperlee/Library/Application Support/typora-user-images/image-20210630174248455.png" alt="image-20210630174248455" style="zoom:67%;" />
+![image-20210630174248455](/Users/temperlee/Library/Application Support/typora-user-images/image-20210630174248455.png)
 
 ### 容器的层次结构
 
 Tomcat 设计了 4 种容器，分别是 Engine、Host、Context 和 Wrapper。这 4 种容器不是平行关系，而是父子关系。
 
-<img src="/Users/temperlee/Library/Application Support/typora-user-images/image-20210630174350037.png" alt="image-20210630174350037" style="zoom:67%;" />
+![image-20210630174350037](/Users/temperlee/Library/Application Support/typora-user-images/image-20210630174350037.png)
 
 设计成这么多层次的容器，这不是增加了复杂度吗？其实这背后的考虑是，**Tomcat 通过一种分层的架构，使得 Servlet 容器具有很好的灵活性。**
 
@@ -268,7 +273,7 @@ Mapper 组件的功能就是将用户请求的 URL 定位到一个 Servlet，它
 
 当一个请求到来时，Mapper 组件通过解析请求 URL 里的域名和路径，再到自己保存的 Map 里去查找，就能定位到一个 Servlet。请注意，一个请求 URL 最后只会定位到一个 Wrapper 容器，也就是一个 Servlet。
 
-<img src="/Users/temperlee/Library/Application Support/typora-user-images/image-20210630175525533.png" alt="image-20210630175525533" style="zoom:67%;" />
+![image-20210630175525533](/Users/temperlee/Library/Application Support/typora-user-images/image-20210630175525533.png)
 
 并不是说只有 Servlet 才会去处理请求，实际上这个查找路径上的父子容器都会对请求做一些处理。连接器中的 Adapter 会调用容器的 Service 方法来执行 Servlet，最先拿到请求的是 Engine 容器，Engine 容器对请求做一些处理后，会把请求传给自己子容器 Host 继续处理，依次类推，最后这个请求会传给 Wrapper 容器，Wrapper 会调用最终的 Servlet 来处理。**这个调用过程具体是使用 Pipeline-Valve 管道来完成的。**
 
@@ -303,7 +308,7 @@ Valve 表示一个处理点，因此 invoke 方法就是来处理请求的。注
 
 这是因为 Pipeline 中还有个 getBasic 方法。这个 BasicValve 处于 Valve 链表的末端，它是 Pipeline 中必不可少的一个 Valve，负责调用下层容器的 Pipeline 里的第一个 Valve。
 
-<img src="/Users/temperlee/Library/Application Support/typora-user-images/image-20210630192406971.png" alt="image-20210630192406971" style="zoom:67%;" />
+![image-20210630192406971](/Users/temperlee/Library/Application Support/typora-user-images/image-20210630192406971.png)
 
 整个调用过程由连接器中的 Adapter 触发的，它会调用 Engine 的第一个 Valve：
 
@@ -546,7 +551,7 @@ private void createWebServer() {
 
 ServletWebServerFactory是一个接口，底层的实现如果大家有时间可以看一下，目前可选的实现方式有：
 
-<img src="/Users/temperlee/Library/Application Support/typora-user-images/image-20210701002623026.png" alt="image-20210701002623026" style="zoom:50%;" />
+![image-20210701002623026](/Users/temperlee/Library/Application Support/typora-user-images/image-20210701002623026.png)
 
 再来看看 getWebSever 具体做了什么，以 Tomcat 为例，主要调用 Tomcat 的 API 去创建各种组件：
 

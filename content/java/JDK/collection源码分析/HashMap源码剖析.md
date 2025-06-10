@@ -1,3 +1,8 @@
+---
+title: HashMap源码剖析
+type: docs
+---
+
 ###HashMap简介
    HashMap是基于哈希表实现的，每一个元素都是一个key-value对，其内部通过单链表解决冲突问题，容量不足（超过了阈值）时，同样会自动增长。
 

@@ -1,3 +1,8 @@
+---
+title: ExecutorService
+type: docs
+---
+
 ### ExecutorService 的理解与使用 ###
 接口 java.util.concurrent.ExecutorService 表述了异步执行的机制，并且可以让任务在后台执行。一个 ExecutorService 实例因此特别像一个线程池。事实上，在 java.util.concurrent 包中的 ExecutorService 的实现就是一个线程池的实现。
 

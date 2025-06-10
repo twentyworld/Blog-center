@@ -1,3 +1,8 @@
+---
+title: lock的实现
+type: docs
+---
+
 ## lock的实现
 前文（深入JVM锁机制-synchronized）分析了JVM中的synchronized实现，本文继续分析JVM中的另一种锁Lock的实现。与synchronized不同的是，Lock完全用Java写成，在java这个层面是无关JVM实现的。
 

@@ -1,3 +1,8 @@
+---
+title: spring-aop
+type: docs
+---
+
 # 开头
 
 aop部分的解析器由AopNamespaceHandler注册，其init方法:

@@ -1,3 +1,8 @@
+---
+title: index
+type: docs
+---
+
 # [索引](http://www.cnblogs.com/morvenhuang/archive/2009/03/30/1425534.html)
 
 ## 基本概念

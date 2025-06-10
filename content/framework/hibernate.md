@@ -1,3 +1,8 @@
+---
+title: hibernate
+type: docs
+---
+
 ## MyBatis 与 Hibernate的区别
 （1）**hibernate是全自动，而mybatis是半自动**
 

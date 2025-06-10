@@ -1,3 +1,8 @@
+---
+title: 4. Redis实现Lock接口
+type: docs
+---
+
 # 基于 Redis 实现 Java Lock 接口的设计与实现文档
 
 ## 一、背景与目标

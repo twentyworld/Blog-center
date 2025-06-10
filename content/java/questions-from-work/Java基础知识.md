@@ -1,3 +1,8 @@
+---
+title: Java基础知识
+type: docs
+---
+
 #J2SE
 ---
 

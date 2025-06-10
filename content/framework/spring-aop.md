@@ -1,3 +1,8 @@
+---
+title: spring-aop
+type: docs
+---
+
 ## Spring本质系列之AOP
 
 ### 问题来源

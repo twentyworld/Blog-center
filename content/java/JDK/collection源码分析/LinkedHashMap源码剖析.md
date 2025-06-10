@@ -1,3 +1,8 @@
+---
+title: LinkedHashMap源码剖析
+type: docs
+---
+
 ##LinkedHashMap简介
 
 LinkedHashMap是HashMap的子类，与HashMap有着同样的存储结构，但它加入了一个双向链表的头结点，将所有put到LinkedHashmap的节点一一串成了一个双向循环链表，因此它保留了节点插入的顺序，可以使节点的输出顺序与输入顺序相同。

@@ -1,3 +1,8 @@
+---
+title: ArrayList源码剖析
+type: docs
+---
+
 ##ArrayList简介
 
 ArrayList是基于数组实现的，是一个动态数组，其容量能自动增长，类似于C语言中的动态申请内存，动态增长内存。

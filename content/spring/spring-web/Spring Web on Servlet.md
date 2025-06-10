@@ -1,3 +1,8 @@
+---
+title: Spring Web on Servlet
+type: docs
+---
+
 # Spring Web on Servlet.
 This part of the documentation covers web applications built on the Servlet API and deployed to Servlet containers.
 

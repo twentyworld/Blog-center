@@ -1,3 +1,8 @@
+---
+title: Session机制
+type: docs
+---
+
 # `Session`机制
 
 ## 1. `Session`解决的问题

@@ -1,3 +1,8 @@
+---
+title: struts
+type: docs
+---
+
 ## 描述 Struts 体系结构？对应各个部分的开发工作主要包括哪些？
 Struts开源架构很好的实现了MVC模式，MVC即Model-View-Controller的缩写，是一种常用的设计模式。MVC 减弱了业务逻辑接口和数据接口之间的耦合，以及让视图层更富于变化。在Struts2的模型 - 视图 - 控制器模式，实现以下五个核心部件：
 

@@ -1,3 +1,8 @@
+---
+title: Semaphore
+type: docs
+---
+
 ## Semaphore
 ---
 

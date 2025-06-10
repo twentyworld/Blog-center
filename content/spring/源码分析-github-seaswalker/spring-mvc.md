@@ -1,3 +1,8 @@
+---
+title: spring-mvc
+type: docs
+---
+
 # 初始化
 
 spring-mvc的核心便是DispatcherServlet，所以初始化也是围绕其展开的。类图:

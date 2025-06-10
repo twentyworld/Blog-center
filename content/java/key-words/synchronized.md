@@ -1,3 +1,8 @@
+---
+title: synchronized
+type: docs
+---
+
 # synchronized
 ---
 ## 1. 进程与线程

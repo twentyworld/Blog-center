@@ -1,3 +1,8 @@
+---
+title: springboot documentation
+type: docs
+---
+
 # Spring boot
 ---
 
