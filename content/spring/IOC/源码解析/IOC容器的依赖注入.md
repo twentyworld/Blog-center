@@ -1,3 +1,8 @@
+---
+title: IOC容器的依赖注入
+type: docs
+---
+
 # IO容器的依赖注入
 
 

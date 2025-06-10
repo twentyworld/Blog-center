@@ -1,3 +1,8 @@
+---
+title: Builder模式
+type: docs
+---
+
 #Builder模式
 ---
 

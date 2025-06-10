@@ -1,3 +1,8 @@
+---
+title: 深入理解JAVA虚拟机
+type: docs
+---
+
 # 深入理解Java虚拟机 #
 
 

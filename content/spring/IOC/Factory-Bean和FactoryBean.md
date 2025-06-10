@@ -1,3 +1,8 @@
+---
+title: Factory-Bean和FactoryBean
+type: docs
+---
+
 ## 工厂模式生成 Bean
 请读者注意 factory-bean 和 FactoryBean 的区别。这节说的是前者，是说静态工厂或实例工厂，而后者是 Spring 中的特殊接口，代表一类特殊的 Bean，附录的下面一节会介绍 FactoryBean。
 

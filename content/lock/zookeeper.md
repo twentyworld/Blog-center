@@ -1,3 +1,8 @@
+---
+title: zookeeper
+type: docs
+---
+
 # 章节目录
 - [章节目录](#章节目录)
 - [1. zookeeper 是什么](#1-zookeeper-是什么)
@@ -171,7 +176,7 @@ Watcher实现由三个部分组成：
 
 客户端首先将Watcher注册到服务端，同时将Watcher对象保存到客户端的Watch管理器中。当ZooKeeper服务端监听的数据状态发生变化时，服务端会主动通知客户端，接着客户端的Watch管理器会触发相关Watcher来回调相应处理逻辑，从而完成整体的数据发布/订阅流程。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watches.png" alt="watches 架构" style="zoom:50%;" />
+![watches 架构](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watches.png)
 
 zk客户端向zk服务器注册watcher的同时，会将watcher对象存储在客户端的watchManager。
 
@@ -186,20 +191,20 @@ zk客户端向zk服务器注册watcher的同时，会将watcher对象存储在�
 
 #### 2.2.1.1. 监听的作用域
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watch-listen.png" alt="watch-listen" style="zoom:67%;" />
+![watch-listen](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watch-listen.png)
 
 加入小红旗是一个watcher，当小红旗被创建并注册到node1节点(会有相应的API实现)后，就会监听node1+node_a+node_b或node_a+node_b。**这里两种情况是因为在创建watcher注册时会有多种途径。并且watcher不能监听到孙节点**。**<u>请注意，watcher设置后，一旦触发一次后就会失效，如果要想一直监听，需要在process回调函数里重新注册相同的 watcher。</u>**
 
 #### 2.2.1.2. watch注册流程
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watch-logic.png" alt="watch-logic" style="zoom: 67%;" />
+![watch-logic](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watch-logic.png)
 
 1. 客户端发送的请求中只包含是否需要注册Watcher，不会将Watcher实体发送
 2. Packet构造函数中的参数WatchRegistration是Watcher的封装体，用于服务响应成功后将Watcher保存到ZKWatchManager中
 
 #### 2.2.1.3. Watcher通知流程
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watch-inform-logic.png" alt="watch-inform-logic" style="zoom:67%;" />
+![watch-inform-logic](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/watch-inform-logic.png)
 
 ### 2.2.2. watches 示例
 
@@ -230,7 +235,7 @@ ZAB的理解：所有事务请求是由一个全局唯一的服务器来协调�
 2. Follower: 处理客户端非事务请求，转发事务请求给Leader服务器，参与事务请求Proposal的投票，参与Leader的选举投票。
 3. Observer：处理客户端非事务请求，转发事务请求给Leader服务器，不参加任何形式的投票，包括选举和事务投票(超过半数确认)，Observer的存在是为了提高zk集群对外提供读性能的能力。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/zookeeper-server-status.png" alt="zookeeper-server-status" style="zoom:67%;" />
+![zookeeper-server-status](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/谨记/zookeeper-image/zookeeper-server-status.png)
 
 ### 3.1.2. Zookeeper 服务器的状态
 

@@ -1,3 +1,8 @@
+---
+title: EventLoopGroup和EventLoop
+type: docs
+---
+
 # EventLoopGroup和EventLoop
 
 一个 Netty 程序启动时, 至少要指定一个 EventLoopGroup(如果使用到的是 NIO, 那么通常是 NioEventLoopGroup), 那么这个 NioEventLoopGroup 在 Netty 中到底扮演着什么角色

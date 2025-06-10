@@ -1,3 +1,8 @@
+---
+title: ThreadLocal
+type: docs
+---
+
 
 
 # ThreadLocal

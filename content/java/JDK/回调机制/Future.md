@@ -1,3 +1,8 @@
+---
+title: Future
+type: docs
+---
+
 # Future
 
 ## 1. Future的应用场景

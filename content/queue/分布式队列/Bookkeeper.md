@@ -1,3 +1,8 @@
+---
+title: Bookkeeper
+type: docs
+---
+
 # Bookkeeper
 
 ## 零、背景
@@ -29,7 +34,7 @@ BookKeeper 的设计完全符合以上要求，并广泛用于多种用例，**�
 
 BookKeeper 通过提供以下保证来**同时**满足上述各项要求：
 
-<img src="Pulsar/Bookkeeper/bookkeeper-acid.png" alt="bookkeeper-acid" style="zoom:80%;" />
+![bookkeeper-acid](Pulsar/Bookkeeper/bookkeeper-acid.png)
 
 ### 多副本
 
@@ -62,7 +67,7 @@ Ledger 中的数据**分布**在 bookies 的 ensemble 中。也就是说，每�
 
 单个bookie的数据流转大致如下：
 
-<img src="Pulsar/Bookkeeper/read-data-flow.png" alt="read-data-flow" style="zoom:80%;" />
+![read-data-flow](Pulsar/Bookkeeper/read-data-flow.png)
 
 ### 持久性
 
@@ -112,7 +117,7 @@ LAC由客户端生成，在动态插入Entry的时候，记录的是当前已经
 
 #### 写一致性
 
-<img src="Pulsar/Bookkeeper/write-consistant.png" alt="write-consistant" style="zoom:50%;" />
+![write-consistant](Pulsar/Bookkeeper/write-consistant.png)
 
 简单来说，Fencing机制用于防止有多个writer（pulsar中即为broker）同时写同一个topic/partition
 
@@ -235,7 +240,7 @@ Entries包含真正的数据，其中也包含一些元数据： 每个entry有�
 
 **当客户端主动关闭或者当充当 writer 的客户端宕机时，正在写入此 ledger 的记录会丢失，而之前存储在 ledger 中的数据不会丢失。**<u>Ledger 一旦被关闭就不可变，也就是说，不允许向已关闭的ledger 中添加数据记录</u>（日志）。
 
-<img src="Pulsar/Bookkeeper/640.png" alt="640" style="zoom:50%;" />
+![640](Pulsar/Bookkeeper/640.png)
 
 ### 日志流(Stream)
 
@@ -243,7 +248,7 @@ Entries包含真正的数据，其中也包含一些元数据： 每个entry有�
 
 一个 stream 由多个 ledger 组成；每个 ledger 根据基于时间或空间的滚动策略循环。在 stream 被删除之前，stream 有可能存在相对较长的时间（几天、几个月，甚至几年）。**Stream 的主要数据保留机制是截断，包括根据基于时间或空间的保留策略删除最早的 ledger。**
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/stream.png" alt="stream" style="zoom:67%;" />
+![stream](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/stream.png)
 
 Ledger 和 stream 为历史数据和实时数据提供统一的存储抽象。在写入数据时，日志流流式传输或追尾传输实时数据记录。存储在 ledger 的实时数据成为历史数据。累积在 stream 中的数据不受单机容量的限制。
 
@@ -325,7 +330,7 @@ BookKeeper与Bookie交互有两个主要作用：一个是创建 ledger 或 stre
 
 Apache BookKeeper 的架构如下图所示，它主要由三个组件构成：客户端 (client)、数据存储节点 (Bookie) 和元数据存储 Service Discovery（ZooKeeper），Bookies 在启动的时候向 ZooKeeper 注册节点，Client 通过 ZooKeeper 发现可用的 Bookie。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/infra.png" alt="infra" style="zoom: 33%;" />
+![infra](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/infra.png)
 
 
 
@@ -335,7 +340,7 @@ Apache BookKeeper 的架构如下图所示，它主要由三个组件构成：�
 
 我们可以简单的把一个 BookKeeper 服务端节点（即 bookie）分为三层：顶层是网络通信层（使用Netty），底层是磁盘IO层，中间层包含大量的缓存。我们可以把 Bookie 理解为一个纯粹的存储节点，负责尽可能快地写入和读取 ledger entry 数据，以及保证这些数据的安全。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/main-infra.png" alt="main-infra" style="zoom: 100%;" />
+![main-infra](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/main-infra.png)
 
 > 这个视图内部包含了多个模块和线程模型，接下来会逐层分析和解释它们之间的关系。
 
@@ -356,7 +361,7 @@ Apache BookKeeper 的架构如下图所示，它主要由三个组件构成：�
 
 下图简单的展示了 bookie 中包含哪些线程和线程池，以及它们之间的通信关系。Netty 线程池负责处理所有的网络请求和响应，然后根据不同的请求类型会提交给4个线程池来处理后续逻辑。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/read-write-thread.png" alt="read-write-thread"  />
+![read-write-thread](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/read-write-thread.png)
 
 - Read 线程不受其他线程影响，它们可以独立完成整个读处理。
 - Long Poll 线程则需要等待 Write 线程的写事件通知。
@@ -394,7 +399,7 @@ Apache BookKeeper 的架构如下图所示，它主要由三个组件构成：�
 
 为了方便阅读，在本文后面将 SingleDirectoryDbLedgerStorage 简称为 DbLedgerStorage。一次请求由哪个线程和组件来处理，取决于线程池的大小以及 journal 和 ledger 目录的数量。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/route-strategy.png" alt="route-strategy" style="zoom:67%;" />
+![route-strategy](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/route-strategy.png)
 
 默认情况下，写线程池只有1个线程。我们在后续博客里会介绍，这个线程池没有太多的处理需要完成。这样的并发处理架构使得 bookie 在具有多核 CPU 和多块磁盘的大型服务器上运行时，可以同时提高计算和磁盘IO的并发处理能力来提高性能。
 

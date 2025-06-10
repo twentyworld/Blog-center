@@ -1,3 +1,8 @@
+---
+title: LinkedList源码剖析
+type: docs
+---
+
 ##LinkedList简介
 LinkedList是基于双向循环链表（从源码中可以很容易看出）实现的，除了可以当作链表来操作外，它还可以当作栈，队列和双端队列来使用。
 

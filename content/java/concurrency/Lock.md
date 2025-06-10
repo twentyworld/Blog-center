@@ -1,3 +1,8 @@
+---
+title: Lock
+type: docs
+---
+
 ## Lock
 ---
 

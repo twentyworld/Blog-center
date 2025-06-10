@@ -1,3 +1,8 @@
+---
+title: ApplicationContext-&&-BeanFactory
+type: docs
+---
+
 ## ApplicationContext && BeanFactory
 ---
 ### 定义

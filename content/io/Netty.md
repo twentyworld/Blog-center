@@ -1,3 +1,8 @@
+---
+title: Netty
+type: docs
+---
+
 
 
 # 第一部分：Netty是什么
@@ -61,7 +66,7 @@ Netty有一个最重要的缺点：大版本不兼容。3.x/4.x同时维护，5.
 - 实现channelActive()，channelRead()，channelInActive()，channelReadComplete(),exceptionCought()方法等对输入流进行处理；
 - 实现write()，close()等方法对输出流进行处理
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/8041b4f364f526a207889a6418818b0f.png" alt="8041b4f364f526a207889a6418818b0f" style="zoom:67%;" />
+![8041b4f364f526a207889a6418818b0f](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/8041b4f364f526a207889a6418818b0f.png)
 
 # 第三部分：Netty架构
 
@@ -81,7 +86,7 @@ Reactor 的线程模型有三种:
 
 首先来看一下 **单线程模型**:
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/5618238-68e647f1ee8798c3.png" alt="5618238-68e647f1ee8798c3" style="zoom:67%;" />![5618238-4dd7b95bf7210cf3](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/5618238-4dd7b95bf7210cf3.png)
+![5618238-68e647f1ee8798c3](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/5618238-68e647f1ee8798c3.png)![5618238-4dd7b95bf7210cf3](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/5618238-4dd7b95bf7210cf3.png)
 
 所谓单线程, 即 acceptor 处理和 handler 处理都在一个线程中处理. 这个模型的坏处显而易见: 当其中某个 handler 阻塞时, 会导致其他所有的 client 的 handler 都得不到执行, 并且更严重的是, handler 的阻塞也会导致整个服务不能接收新的 client 请求(因为 acceptor 也被阻塞了). 因为有这么多的缺陷, 因此单线程Reactor 模型用的比较少.
 
@@ -101,7 +106,7 @@ Reactor 多线程模型 有如下特点:
 
 接下来我们再来看一下 Reactor 的主从多线程模型. 一般情况下, Reactor 的多线程模式已经可以很好的工作了, 但是我们考虑一下如下情况: 如果我们的服务器需要同时处理大量的客户端连接请求或我们需要在客户端连接时, 进行一些权限的检查, 那么单线程的 Acceptor 很有可能就处理不过来, 造成了大量的客户端不能连接到服务器. Reactor 的主从多线程模型就是在这样的情况下提出来的, 它的特点是: 服务器端接收客户端的连接请求不再是一个线程, 而是由一个独立的线程池组成. 它的线程模型如下:
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/5618238-dceebb58dbcf1dd4.png" alt="5618238-dceebb58dbcf1dd4" style="zoom:67%;" />
+![5618238-dceebb58dbcf1dd4](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/5618238-dceebb58dbcf1dd4.png)
 
 可以看到, Reactor 的主从多线程模型和 Reactor 多线程模型很类似, 只不过 Reactor 的主从多线程模型的 acceptor 使用了线程池来处理大量的客户端请求.
 
@@ -113,7 +118,7 @@ Netty是一个异步网络通信框架，异步主要体现在对java Future的�
 
 > 说说我对Netty架构的理解，或者这么说，使用NIO框架的底层逻辑，封装NIO代码，屏蔽复杂繁琐的逻辑(尤其是复杂反人类的内存API的逻辑)，然后加上对大量的从使用者的角度，抽象通用，合理制定接口。如果说每一份代码都有编码人员对世界的抽象理解，Netty的理解是：你就写你的handler就行，剩下的你不用懂。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/image.jpg" alt="image" style="zoom:67%;" />
+![image](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/image.jpg)
 
 大家可以主要看这个图，就是只有右下角的ChannelHandler需要用户实现，其他基本上都是实现好的。如果不需要特殊定制，基本不需要单独书写。
 
@@ -123,7 +128,7 @@ Netty是一个异步网络通信框架，异步主要体现在对java Future的�
 
 NioEventLoop 类继承关系
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/image.png" alt="image" style="zoom:50%;" />
+![image](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/image.png)
 
 这个话题轻易提不起来，突然介绍EventLoop的话，内容太多，我一点一点介绍吧，介绍到哪里，就从哪里开始。 从我接触Netty开始，NioEventLoop就算是Netty最重要的概念，也是所有设计中最重的。可以从上面的类继承关系中看到，NioEventLoop继承了大量的接口，实现了大量的数据能力，可以给出一些简单的定义：
 
@@ -500,7 +505,7 @@ private void write(Object msg, boolean flush, ChannelPromise promise) {
 
 eventLoop是一个Executor，可以调用execute给eventLoop提交任务，NioEventLoop会在runAllTasks执行。NioEventLoop内部分为普通任务和定时任务，在执行过程中，NioEventLoop会把过期的定时任务从scheduledTaskQueue转移到taskQueue中，然后执行taskQueue中的任务，同时每隔64个任务检查是否该退出任务循环。
 
-<img src="/Users/temperlee/Downloads/0ff854b4-c030-4c9e-b0e8-c9f5f5b9385e.png" alt="0ff854b4-c030-4c9e-b0e8-c9f5f5b9385e" style="zoom: 50%;" />
+![0ff854b4-c030-4c9e-b0e8-c9f5f5b9385e](/Users/temperlee/Downloads/0ff854b4-c030-4c9e-b0e8-c9f5f5b9385e.png)
 
 ### 2.2 给EventLoop添加任务
 
@@ -578,7 +583,7 @@ Promise接口也扩展了Future接口，它表示一种可写的Future，可以�
 
 Channel相比较EventLoop更加一言难尽。主要内容太多了，这里主要介绍一下大家可能会遇到的三个关键接口：Channel、ChannelPipeline、ChannelHandler.
 
-<img src="/Users/temperlee/Downloads/image-(1).png" alt="image-(1)" style="zoom:67%;" />
+![image-(1)](/Users/temperlee/Downloads/image-(1).png)
 
 **先给大家一个简要的印象，上面是我通过debug截了一个线程方法栈，可以看到方法是从NioEventLoop的run方法开始执行的，**
 
@@ -613,7 +618,7 @@ Netty 有一个简单但强大的状态模型，并完美映射到ChannelInbound
 
 Netty将Channel的数据管道抽象为ChannelPipeline，消息在ChannelPipeline中间流动和传递。ChannelPipeline持有一个包含一系列事件拦截器ChannelHandler的链表，由ChannelHandler负责对事件进行拦截和处理。用户可以方便的增加和删除ChannelHandler来达到定制业务逻辑的目的，而不需要对现有的ChannelHandler进行修改。但是ChannelPipeline本身是不需要大家关注太多的，只需要了解这个概念：channelPipeline管理ChannelHandler。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/Channel90.png" alt="Channel90" style="zoom:67%;" />
+![Channel90](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/Channel90.png)
 
 通过上图我们可以看到, 一个 Channel 包含了一个 ChannelPipeline, 而 ChannelPipeline 中又维护了一个由 ChannelHandlerContext 组成的双向链表. 这个链表的头是 HeadContext, 链表的尾是 TailContext, 并且每个 ChannelHandlerContext 中又关联着一个 ChannelHandler.**最开始的时候 ChannelPipeline 中含有两个 ChannelHandlerContext(同时也是 ChannelHandler), 但是这个 Pipeline并不能实现什么特殊的功能, 因为我们还没有给它添加自定义的 ChannelHandler.**
 
@@ -626,7 +631,7 @@ Netty将Channel的数据管道抽象为ChannelPipeline，消息在ChannelPipelin
 
 #### 4.2.1 ChannelPipeline事件流
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/image 2.png" alt="image 2" style="zoom:50%;" />
+![image 2](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/image/netty/image 2.png)
 
 这个是观望上对事件流的一种方式，当然，在Netty 5.x，重新设计了事件流，但是显然并不是很好，现在也放弃维护了。可以说这个模式，深入人心。
 

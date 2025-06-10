@@ -1,3 +1,8 @@
+---
+title: Disruptor
+type: docs
+---
+
 # Disruptor
 
 # 什么是 Disruptor

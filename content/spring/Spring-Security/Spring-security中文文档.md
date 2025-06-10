@@ -1,3 +1,8 @@
+---
+title: Spring-security中文文档
+type: docs
+---
+
 
 ## Spring Security blog.
 

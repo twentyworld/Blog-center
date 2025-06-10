@@ -1,3 +1,8 @@
+---
+title: AbstractQueuedSynchronizer
+type: docs
+---
+
 # AbstractQueuedSynchronizer
 
 首先我们可以看看类的定义：

@@ -1,3 +1,8 @@
+---
+title: CyclicBarrier
+type: docs
+---
+
 ## CyclicBarrier
 
 ---

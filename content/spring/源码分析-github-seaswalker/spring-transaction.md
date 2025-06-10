@@ -1,3 +1,8 @@
+---
+title: spring-transaction
+type: docs
+---
+
 # 配置
 
 以最简单的jdbc事务为例:

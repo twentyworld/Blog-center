@@ -1,3 +1,8 @@
+---
+title: 1. redis数据结构和对象
+type: docs
+---
+
 # redis数据结构与对象
 
 ## 1. 简单动态字符串
@@ -23,7 +28,7 @@ struct sdshdr {
 
 SDS实例如下：
 
-<img src="基本数据结构-image/image.png" alt="image" style="zoom:67%;" />
+![image](基本数据结构-image/image.png)
 
 ### 1.2 SDS与C语言字符串区别
 
@@ -76,13 +81,13 @@ typedef struct listNode {
     // 节点的值
     void *value;
 
-} listNode;
+} ;
 
 ```
 
 链表节点实例如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(1).png" alt="image-(1)" style="zoom:80%;" />
+![image-(1)](基本数据结构-image/image-(1).png)
 
 ### 2.2 Redis 的链表定义
 
@@ -107,12 +112,12 @@ typedef struct list {
     // 节点值对比函数
     int (*match)(void *ptr, void *key);
 
-} list;
+} ;
 ```
 
 链表实例如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(2).png" alt="image-(2)" style="zoom:80%;" />
+![image-(2)](基本数据结构-image/image-(2).png)
 
 ### Redis的链表特性
 
@@ -148,7 +153,7 @@ typedef struct dictht {
     // 该哈希表已有节点的数量
     unsigned long used;
 
-} dictht;
+} ;
 
 ```
 
@@ -172,13 +177,13 @@ typedef struct dictEntry {
 
     // 指向下个哈希表节点，形成链表
     struct dictEntry *next;
-} dictEntry;
+} ;
 
 ```
 
 哈希表实例如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(3).png" alt="image-(3)" style="zoom:80%;" />
+![image-(3)](基本数据结构-image/image-(3).png)
 
 ### 3.3字典定义
 
@@ -203,7 +208,7 @@ typedef struct dict {
     // 当不在 rehash 时，值为 -1
     int rehashidx; /* rehashing not in progress if rehashidx == -1 */
 
-} dict;
+};
 
 ```
 
@@ -230,13 +235,13 @@ typedef struct dictType {
     // 销毁值的函数
     void (*valDestructor)(void *privdata, void *obj);
 
-} dictType;
+};
 
 ```
 
 字典实例如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(4).png" alt="image-(4)" style="zoom:67%;" />
+![image-(4)](基本数据结构-image/image-(4).png)
 
 ### 3.4.渐进式rehash
 
@@ -262,29 +267,29 @@ load_factor = ht[0].used / ht[0].size
 
 **<u>渐进式rehash流程图如下</u>**
 
-<u>1.初始态字典</u>                                                                                                    
+<u>1.初始态字典</u>
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(5).png" alt="image-(5)" style="zoom:80%;" />
+![image-(5)](基本数据结构-image/image-(5).png)
 
  <u>2.迁移rehash索引0的键值对</u>
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(6).png" alt="image-(6)" style="zoom:80%;" />
+![image-(6)](基本数据结构-image/image-(6).png)
 
 <u>3.迁移rehash索引1的键值对</u>
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(7).png" alt="image-(7)" style="zoom:80%;" />
+![image-(7)](基本数据结构-image/image-(7).png)
 
 4.rehash不断进行，直至迁移完所有索引对应的键值对数据
 
 5.rehash之后的字典
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(8).png" alt="image-(8)" style="zoom:80%;" />
+![image-(8)](基本数据结构-image/image-(8).png)
 
 ## 4. 跳跃表
 
 简单的来说跳跃表就是建立多级索引，提高查询效率。经典的跳跃表图示，如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(9).png" alt="image-(9)" style="zoom:67%;" />
+![image-(9)](基本数据结构-image/image-(9).png)
 
 ```c
 //保证下一级索引向上一级索引的晋升概率为SKIPLIST_P
@@ -305,7 +310,7 @@ private int randomLevel() {
 
 图示如下：
 
-![image-(10)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(10).png)
+![image-(10)](基本数据结构-image/image-(10).png)
 
 ```c
 typedef struct zskiplist {
@@ -319,25 +324,10 @@ typedef struct zskiplist {
     // 表中层数最大的节点的层数
     int level;
 
-} zskiplist;
+};
 ```
 
 ### 4.2跳跃表节点定义
-
-- obj字段存放的是节点数据。
-- score字段是数据对应的分数。
-- backward字段是指向链表前一个节点的指针（前向指针）。节点只有1个前向指针，所以只有第1层链表是一个双向链表。
-- level[]存放指向各层链表后一个节点的指针（后向指针）。每层对应1个后向指针，用forward字段表示。
-- 每个后向指针还对应了一个span值，它表示当前的指针跨越了多少个节点。span用于计算元素排名(rank)。
-
-**查询指定排名举例**
-
-假设我们在这个skiplist中查找score=89.0的元素（即Bob的成绩数据）
-
-从小到大的排名：在查找路径中，我们会跨域图中标红的指针，这些指针上面的span值累加起来，就得到了Bob的排名(2+2+1)-1=4（减1是因为rank值以0起始）。
-
-从大到小的排名：只需要用skiplist长度减去查找路径上的span累加值，即6-(2+2+1)=1。
-
 ```c
 typedef struct zskiplistNode {
 
@@ -361,8 +351,23 @@ typedef struct zskiplistNode {
 
     } level[];
 
-} zskiplistNode;
+};
 ```
+
+- obj字段存放的是节点数据。
+- score字段是数据对应的分数。
+- backward字段是指向链表前一个节点的指针（前向指针）。节点只有1个前向指针，所以只有第1层链表是一个双向链表。
+- level[]存放指向各层链表后一个节点的指针（后向指针）。每层对应1个后向指针，用forward字段表示。
+- 每个后向指针还对应了一个span值，它表示当前的指针跨越了多少个节点。span用于计算元素排名(rank)。
+
+**查询指定排名举例**
+
+假设我们在这个skiplist中查找score=89.0的元素（即Bob的成绩数据）
+
+从小到大的排名：在查找路径中，我们会跨域图中标红的指针，这些指针上面的span值累加起来，就得到了Bob的排名(2+2+1)-1=4（减1是因为rank值以0起始）。
+
+从大到小的排名：只需要用skiplist长度减去查找路径上的span累加值，即6-(2+2+1)=1。
+
 
 ## 5. 整数集合
 
@@ -398,7 +403,7 @@ typedef struct intset {
 
 int16_t 类型整数集合示例，如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(11).png" alt="image-(11)" style="zoom:60%;" />
+![image-(11)](基本数据结构-image/image-(11).png)
 
 ### 5.2.升级
 
@@ -414,15 +419,15 @@ int16_t 类型整数集合示例，如下：
 
 1.分配新的空间
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(12).png" alt="image-(12)" style="zoom:50%;" />
+![image-(12)](基本数据结构-image/image-(12).png)
 
 2.调整原有元素位置
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(13).png" alt="image-(13)" style="zoom:50%;" />
+![image-(13)](基本数据结构-image/image-(13).png)
 
 3.添加新元素
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(14).png" alt="image-(14)" style="zoom:50%;" />
+![image-(14)](基本数据结构-image/image-(14).png)
 
 ## 6. 压缩列表
 
@@ -430,7 +435,7 @@ int16_t 类型整数集合示例，如下：
 
 **压缩列表（ziplist）**本质上就是一个字节数组，是Redis为了节约内存而设计的一种线性数据结构，可以包含任意多个元素，每个元素可以是一个字节数组或一个整数。这块内存物理上是连续的，逻辑上被分为逻辑划分为多个字段，如图所示：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(15).png" alt="image-(15)" style="zoom:50%;" />
+![image-(15)](基本数据结构-image/image-(15).png)
 
 字段含义如下：
 
@@ -444,7 +449,7 @@ int16_t 类型整数集合示例，如下：
 
 每个压缩列表节点都由 previous_entry_length 、 encoding 、 content 三个部分组成， 如图所示：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(16).png" alt="image-(16)" style="zoom:50%;" />
+![image-(16)](基本数据结构-image/image-(16).png)
 
 - previous_entry_length：节点的 previous_entry_length 属性以字节为单位， 记录了压缩列表中前一个节点的长度。
 - encoding：节点的 encoding 属性记录了节点的 content 属性所保存数据的类型以及长度。
@@ -464,11 +469,11 @@ int16_t 类型整数集合示例，如下：
 
 - 对象的 type 属性记录了对象的类型， 这个属性的值可以是下表列出的常量的其中一个。
 
-  <img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(17).png" alt="image-(17)" style="zoom:67%;" />
+  ![image-(17)](基本数据结构-image/image-(17).png)
 
 - encoding 属性记录了对象所使用的编码， 也即是说这个对象使用了什么数据结构作为对象的底层实现， 这个属性的值可以是下表的常量的其中一个。
 
-  <img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(18).png" alt="image-(18)" style="zoom:60%;" />
+  ![image-(18)](基本数据结构-image/image-(18).png)
 
 - 对象的 ptr 指针指向对象的底层实现数据结构， 而这些数据结构由对象的 encoding 属性决定。
 
@@ -502,13 +507,13 @@ typedef struct redisObject {
 
 如果一个字符串对象保存的是整数值， 并且这个整数值可以用 long 类型来表示， 那么字符串对象会将整数值保存在字符串对象结构的 ptr 属性里面（将 void* 转换成 long )，并将字符串对象的编码设置为 int 。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(19).png" alt="image-(19)" style="zoom:50%;" />
+![image-(19)](基本数据结构-image/image-(19).png)
 
 #### 7.2.2 raw编码字符串
 
 如果字符串对象保存的是一个字符串值， 并且这个字符串值的长度大于 39 字节， 那么字符串对象将使用一个简单动态字符串（SDS）来保存这个字符串值， 并将对象的编码设置为 raw 。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(20).png" alt="image-(20)" style="zoom:50%;" />
+![image-(20)](基本数据结构-image/image-(20).png)
 
 #### 7.2.3 embstr编码字符串
 
@@ -516,7 +521,7 @@ typedef struct redisObject {
 
 图示如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(21).png" alt="image-(21)" style="zoom:50%;" />
+![image-(21)](基本数据结构-image/image-(21).png)
 
 **embstr 编码优势**
 
@@ -537,11 +542,11 @@ typedef struct redisObject {
 
 #### 7.3.1 ziplist编码的列表对象
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(22).png" alt="image-(22)" style="zoom:50%;" />![image-(23)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(23).png)
+![image-(22)](基本数据结构-image/image-(22).png)![image-(23)](基本数据结构-image/image-(23).png)
 
 #### 7.3.2 linkedlist编码的列表对象
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(23).png" alt="image-(23)" />
+![image-(23)](基本数据结构-image/image-(23).png)
 
 ### 7.4 哈希对象
 
@@ -558,13 +563,13 @@ typedef struct redisObject {
 
 ziplist 编码的哈希对象使用压缩列表作为底层实现， 每当有新的键值对要加入到哈希对象时， 程序会先将保存了键的压缩列表节点推入到压缩列表表尾， 然后再将保存了值的压缩列表节点推入到压缩列表表尾，
 
-![image-(24)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(24).png)
+![image-(24)](基本数据结构-image/image-(24).png)
 
 #### 7.4.2 hashtable 编码的哈希对象
 
 hashtable 编码的哈希对象使用字典作为底层实现， 哈希对象中的每个键值对都使用一个字典键值对来保存：
 
-![image-(25)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(25).png)
+![image-(25)](基本数据结构-image/image-(25).png)
 
 ### 7.5 集合对象
 
@@ -581,13 +586,13 @@ hashtable 编码的哈希对象使用字典作为底层实现， 哈希对象中
 
 intset 编码的集合对象使用整数集合作为底层实现， 集合对象包含的所有元素都被保存在整数集合里面。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(26).png" alt="image-(26)" style="zoom:60%;" />
+![image-(26)](基本数据结构-image/image-(26).png)
 
 #### 7.5.2 hashtable的集合对象
 
 hashtable 编码的集合对象使用字典作为底层实现， 字典的每个键都是一个字符串对象， 每个字符串对象包含了一个集合元素， 而字典的值则全部被设置为 NULL 。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(27).png" alt="image-(27)" style="zoom:80%;" />
+![image-(27)](基本数据结构-image/image-(27).png)
 
 ### 7.6 有序集合对象
 
@@ -605,7 +610,7 @@ hashtable 编码的集合对象使用字典作为底层实现， 字典的每个
 
 ziplist 编码的有序集合对象使用压缩列表作为底层实现， 每个集合元素使用两个紧挨在一起的压缩列表节点来保存， 第一个节点保存元素的成员（member）， 而第二个元素则保存元素的分值（score）。
 
-![image-(28)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(28).png)
+![image-(28)](基本数据结构-image/image-(28).png)
 
 #### 7.6.2 skiplist编码的有序集合对象
 
@@ -627,7 +632,7 @@ typedef struct zset {
 
 图示如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/基本数据结构-image/image-(29).png" alt="image-(29)" style="zoom:60%;" />
+![image-(29)](基本数据结构-image/image-(29).png)
 
 ### 7.7 内存回收与对象共享
 

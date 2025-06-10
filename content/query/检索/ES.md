@@ -1,3 +1,8 @@
+---
+title: ES
+type: docs
+---
+
 ## ES基本概念
 
 ES 是使用 Java 编写的一种开源搜索引擎，它在内部使用 Lucene 做索引与搜索，通过对 Lucene 的封装，隐藏了 Lucene 的复杂性，取而代之的提供一套简单一致的 RESTful API。
@@ -63,7 +68,7 @@ node.data: true    //是否数据节点
 
 ES 支持 PB 级全文搜索，当索引上的数据量太大的时候，ES 通过水平拆分的方式将一个索引上的数据拆分出来分配到不同的数据块上，拆分出来的数据库块称之为一个分片。<u>每个分片可以有一个主分片和多个副本分片，**每个分片副本都是一个具有完整功能的lucene实例。**分片可以分配在不同的服务器上，同一个分片的不同副本不能分配在相同的服务器上。</u>
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/检索/image/es/850781863.png" alt="850781863" style="zoom:50%;" />
+![850781863](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/检索/image/es/850781863.png)
 
 **在一个多分片的索引中写入数据时，通过路由来确定具体写入哪一个分片中，<u>所以在创建索引的时候需要指定分片的数量，并且分片的数量一旦确定就不能修改。</u>**分片的数量和下面介绍的副本数量都是可以通过创建索引时的 Settings 来配置，ES 默认为一个索引创建 5 个主分片, 并分别为每个分片创建一个副本。
 
@@ -104,7 +109,7 @@ es接收数据请求时先存入内存中，默认每隔一秒会从内存buffer
 
 优化的地方: 过程2和过程3。segment进入操作系统的缓存中就可以提供搜索, 这个写入和打开新segment的轻量过程被称为refresh.
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/检索/image/es/851401146.png" alt="851401146" style="zoom:50%;" />
+![851401146](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/检索/image/es/851401146.png)
 
 ### 数据存储可靠性
 
@@ -117,12 +122,12 @@ es接收数据请求时先存入内存中，默认每隔一秒会从内存buffer
 
 这样就可以防止服务器宕机后数据的丢失。由于translog是追加写入，因此性能比较好。<u>与传统的分布式系统不同，这里是先写入Lucene再写入translog，原因是写入Lucene可能会失败，为了减少写入失败回滚的复杂度，因此先写入Lucene。</u>
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/检索/image/es/851284048.png" alt="851284048" style="zoom:50%;" />
+![851284048](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/检索/image/es/851284048.png)
 
 #### flush操作
 
 另外每30分钟或当translog达到一定大小(由index.translog.flush_threshold_size控制，默认512mb), <u>ES会触发一次flush操作，此时ES会先执行refresh操作将buffer中的数据生成segment，然后调用lucene的commit方法将所有内存中的segment fsync到磁盘。</u>此时lucene中的数据就完成了持久化，会清空translog中的数据(6.x版本为了实现sequenceIDs,不删除translog) 。
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/检索/image/es/49339c3b90a1bc04c9a6b9617017b43d.png" alt="49339c3b90a1bc04c9a6b9617017b43d" style="zoom:67%;" />
+![49339c3b90a1bc04c9a6b9617017b43d](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/检索/image/es/49339c3b90a1bc04c9a6b9617017b43d.png)
 
 #### 多副本机制
 
@@ -134,7 +139,7 @@ es接收数据请求时先存入内存中，默认每隔一秒会从内存buffer
 
 由于refresh默认间隔为1s中，因此会产生大量的小segment，为此ES会运行一个任务检测当前磁盘中的segment，对这些零散的segment进行merge(归并)操作, 尽量让索引中只保有少量的、体积较大的segment文件。这个过程由独立的merge线程负责, 不会影响新segment的产生。对符合条件的segment进行合并操作，减少lucene中的segment个数，提高查询速度，降低负载。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/检索/image/es/851347578.png" alt="851347578" style="zoom:67%;" />
+![851347578](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/检索/image/es/851347578.png)
 
 不仅如此，merge过程也是文档删除和更新操作后，旧的doc真正被删除的时候。用户还可以手动调用_forcemerge API来主动触发merge，以减少集群的segment个数和清理已删除或更新的文档。更新的流程大致为：
 

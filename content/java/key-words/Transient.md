@@ -1,3 +1,8 @@
+---
+title: Transient
+type: docs
+---
+
 #### Java中Transient关键字
 虽然自己最熟的是Java，但很多Java基础知识都不知道，比如transient关键字以前都没用到过，所以不知道它的作用是什么，今天做笔试题时发现有一题是关于这个的，于是花个时间整理下transient关键字的使用，涨下姿势~~~好了，废话不多说，下面开始：
 

@@ -1,3 +1,8 @@
+---
+title: RocksDB
+type: docs
+---
+
 # RocksDB
 
 **请注意，本文全文COPY自下面的文章，为了更好的阅读体验，请点击前往。本文更多是为了防范数据删除，如果涉及侵权，请联系网站维护人员，会立即下线。参考文献：[RocksDB 笔记](https://www.liangzl.com/get-article-detail-138971.html)**

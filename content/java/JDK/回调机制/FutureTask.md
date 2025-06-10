@@ -1,3 +1,8 @@
+---
+title: FutureTask
+type: docs
+---
+
 ## FutureTask
 
 FutureTask是一个可取消的异步计算任务。FutureTask提供了对 Future 的基本实现。仅在计算完成时才能获取结果；如果计算尚未完成，则阻塞 get 方法。一旦计算完成，就不能再重新开始或取消计算。

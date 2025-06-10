@@ -1,3 +1,8 @@
+---
+title: 关于Java内存泄漏
+type: docs
+---
+
 ### 关于Java内存泄漏
 
 **Java是如何管理内存**

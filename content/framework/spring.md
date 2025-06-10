@@ -1,3 +1,8 @@
+---
+title: spring
+type: docs
+---
+
 ## 什么是Spring
 Spring是一个开源的Java EE开发框架。Spring框架的核心功能可以应用在任何Java应用程序中，但对Java EE平台上的Web应用程序有更好的扩展性。Spring框架的目标是使得Java EE应用程序的开发更加简捷，通过使用POJO为基础的编程模型促进良好的编程风格。
 

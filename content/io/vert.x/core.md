@@ -1,3 +1,8 @@
+---
+title: core
+type: docs
+---
+
 # Core
 
 ---

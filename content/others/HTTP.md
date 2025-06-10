@@ -1,3 +1,8 @@
+---
+title: HTTP
+type: docs
+---
+
 
 
 ## 请求方法
@@ -15,7 +20,7 @@
 7. <u>OPTIONS：列出可对资源实行的方法；</u>
 8. <u>TRACE：追踪请求 - 响应的传输路径。</u>
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/http-img/下载.jpeg" alt="下载" style="zoom:67%;" />
+![下载](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/http-img/下载.jpeg)
 
 客户端没有决定权，服务器掌控着所有资源，也就有绝对的决策权力。它收到 HTTP 请求报文后，看到里面的请求方法，可以执行也可以拒绝，或者改变动作的含义， HTTP 是一个“协议”，两边都要“商量着来”。
 
@@ -201,7 +206,7 @@ MIME 是一个很大的标准规范，但 HTTP 只“顺手牵羊”取了其中
 
 <u>HTTP 协议为此定义了两个 Accept 请求头字段和两个 Content 实体头字段，</u>用于客户端和服务器进行“**内容协商**”。也就是说，**客户端用 Accept 头告诉服务器希望接收什么样的数据，而服务器用 Content 头告诉客户端实际发送了什么样的数据。**
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/http-img/下载.png" alt="下载" style="zoom: 33%;" />
+![下载](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/http-img/下载.png)
 
 不过**Accept-Encoding/Content-Encoding是可以省略的**，如果请求报文里没有 Accept-Encoding 字段，就表示客户端不支持压缩数据；如果响应报文里没有 Content-Encoding 字段，就表示响应数据没有被压缩。
 
@@ -239,7 +244,7 @@ Accept-Language: zh-CN, zh, en
 3. <u>数据块紧跟在长度头后，最后也用 CRLF 结尾，但数据不包含 CRLF；</u>
 4. <u>最后用一个长度为 0 的块表示结束，即“0\r\n\r\n”。</u>
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/http-img/下载 (1).png" alt="下载 (1)" style="zoom:50%;" />
+![下载 (1)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/http-img/下载 (1).png)
 
 
 

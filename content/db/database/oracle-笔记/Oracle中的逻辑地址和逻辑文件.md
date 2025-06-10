@@ -1,3 +1,8 @@
+---
+title: Oracle中的逻辑地址和逻辑文件
+type: docs
+---
+
 # Oracle中的逻辑结构
 
 ## `Tablespace` `Segment` `Extent` `Block`

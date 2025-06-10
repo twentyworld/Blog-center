@@ -1,3 +1,8 @@
+---
+title: Lucene
+type: docs
+---
+
 # Lucene
 
 > 本人不太懂Lucene，全文基于网上的总结文档。算是一个抄袭文档，请勿以此为准。

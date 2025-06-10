@@ -1,3 +1,8 @@
+---
+title: JDK动态代理
+type: docs
+---
+
 
 ## JDK 动态代理
 

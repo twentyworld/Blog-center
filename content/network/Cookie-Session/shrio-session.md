@@ -1,3 +1,8 @@
+---
+title: shrio-session
+type: docs
+---
+
 ### Shiro Session
 session管理可以说是Shiro的一大卖点
 

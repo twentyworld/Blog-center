@@ -1,3 +1,8 @@
+---
+title: volatile
+type: docs
+---
+
 ## volatile
 
 - 内存模型的相关概念

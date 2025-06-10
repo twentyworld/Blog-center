@@ -1,3 +1,8 @@
+---
+title: CountDownLatch
+type: docs
+---
+
 ## CountDownLatch
 
 ---

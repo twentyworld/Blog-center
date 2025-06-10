@@ -1,3 +1,8 @@
+---
+title: Future-Promise
+type: docs
+---
+
 # Future 和 Promise
 
 ## Future

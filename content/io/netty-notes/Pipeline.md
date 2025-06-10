@@ -1,3 +1,8 @@
+---
+title: Pipeline
+type: docs
+---
+
 # ChannelPipeline
 
 ## Channel 与 ChannelPipeline

@@ -1,3 +1,8 @@
+---
+title: AsyncTask的理解与应用
+type: docs
+---
+
 ## 线程
 
 在Android当中，通常将线程分为两种，一种叫做Main Thread，除了Main Thread之外的线程都可称为Worker Thread。

@@ -1,3 +1,8 @@
+---
+title: Mysql学习
+type: docs
+---
+
 # Mysql的一个系列学习
 
 - [Mysql的一个系列学习](#mysql的一个系列学习)
@@ -30,7 +35,7 @@ mysql> select * from T where ID=10；
 
 下面给出的是 MySQL 的基本架构示意图，从中可以清楚地看到 SQL 语句在 MySQL 的各个功能模块中的执行过程。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/mysql学习/MySQL 的逻辑架构图.png" alt="MySQL 的逻辑架构图" style="zoom: 50%;" />
+![MySQL 的逻辑架构图](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/mysql学习/MySQL 的逻辑架构图.png)
 
 大体来说，MySQL 可以分为 Server 层和存储引擎层两部分。
 
@@ -154,7 +159,7 @@ ERROR 1142 (42000): SELECT command denied to user 'b'@'localhost' for table 'T'
 
 那么，一条更新语句的执行流程又是怎样的呢？
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/mysql学习/MySQL 的逻辑架构图.png" alt="MySQL 的逻辑架构图" style="zoom:50%;" />
+![MySQL 的逻辑架构图](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/mysql学习/MySQL 的逻辑架构图.png)
 
 首先，可以确定的说，查询语句的那一套流程，更新语句也是同样会走一遍。
 
@@ -197,7 +202,7 @@ ERROR 1142 (42000): SELECT command denied to user 'b'@'localhost' for table 'T'
 
 与此类似，InnoDB 的 redo log 是固定大小的，比如可以配置为一组 4 个文件，每个文件的大小是 1GB，那么这块“粉板”总共就可以记录 4GB 的操作。从头开始写，写到末尾就又回到开头循环写，如下面这个图所示。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/mysql学习/redo-log.png" alt="redo-log" style="zoom:50%;" />
+![redo-log](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/mysql学习/redo-log.png)
 
 write pos 是当前记录的位置，一边写一边后移，写到第 3 号文件末尾后就回到 0 号文件开头。checkpoint 是当前要擦除的位置，也是往后推移并且循环的，擦除记录前要把记录更新到数据文件。
 
@@ -229,7 +234,7 @@ write pos 和 checkpoint 之间的是“粉板”上还空着的部分，可以�
 
 >  图中浅色框表示是在 InnoDB 内部执行的，深色框表示是在执行器中执行的
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/mysql学习/update-语句执行流程.png" alt="update-语句执行流程" style="zoom:50%;" />
+![update-语句执行流程](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/mysql学习/update-语句执行流程.png)
 
 >目前有了redo log,并不是说binlog就显得没有什么用处，换句话说：binlog还不能去掉。
 >
@@ -323,7 +328,7 @@ write pos 和 checkpoint 之间的是“粉板”上还空着的部分，可以�
 
 假设一个值从 1 被按顺序改成了 2、3、4(是commit的)，在回滚日志里面就会有类似下面的记录。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/mysql学习/read-view.png" alt="read-view" style="zoom: 67%;" />
+![read-view](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/不成系统的理论/mysql学习/read-view.png)
 
 当前值是 4，但是在查询这条记录的时候，不同时刻启动的事务会有不同的 read-view。如图中看到的，在视图 A、B、C 里面，这一个记录的值分别是 1、2、4，同一条记录在系统中可以存在多个版本，就是数据库的多版本并发控制（MVCC）。对于 read-view A，要得到 1，就必须将当前值依次执行图中所有的回滚操作得到。
 

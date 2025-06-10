@@ -1,3 +1,8 @@
+---
+title: 一致性Hash算法
+type: docs
+---
+
 # 一致性Hash算法
 
 1.为什么要使用一致性Hash

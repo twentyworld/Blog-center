@@ -1,3 +1,8 @@
+---
+title: Mysql排序
+type: docs
+---
+
 # Mysql排序
 
 ### 实际trace结果

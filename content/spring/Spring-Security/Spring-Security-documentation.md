@@ -1,3 +1,8 @@
+---
+title: Spring-Security-documentation
+type: docs
+---
+
 ## Spring Security
 ---
 
