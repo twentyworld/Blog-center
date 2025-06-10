@@ -1,3 +1,8 @@
+---
+title: Spring-Data-Commons
+type: docs
+---
+
 Spring Data Commons
 
 The goal of Spring Data repository abstraction is to significantly reduce the amount of boilerplate code required to implement data access layers for various persistence stores.

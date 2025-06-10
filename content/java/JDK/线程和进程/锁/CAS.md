@@ -1,3 +1,8 @@
+---
+title: CAS
+type: docs
+---
+
 ## CAS
 
 ### CAS在锁中对应的关系

@@ -1,3 +1,8 @@
+---
+title: IO模型
+type: docs
+---
+
 
 ---
 toc: false
@@ -11,7 +16,7 @@ toc: false
 
 ## 2.1. 操作系统IO交互
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/IO/img/image.png" alt="image" style="zoom:67%;" />
+![image](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/IO/img/image.png)
 
 **DMA(Direct Memory Access)直接内存存取**
 
@@ -46,7 +51,7 @@ UNIX目前持有了这么几种IO模型:
 1. kernel就开始了IO的第一个阶段：**准备数据**（对于网络IO来说，很多时候数据在一开始还没有到达。比如，还没有收到一个完整的UDP包。这个时候kernel就要等待足够的数据到来）。这个过程需要等待，也就是说数据被拷贝到操作系统内核的缓冲区中是需要一个过程的。而在用户进程这边，整个进程会被阻塞（当然，是进程自己选择的阻塞）。
 2. 第二个阶段：**当kernel一直等到数据准备好了，它就会将数据从kernel中拷贝到用户内存，然后kernel返回结果，用户进程才解除block的状态**，重新运行起来。(注意，这里的过程可以解释成：内核线程把数据copy到用户线程之后，函数才会返回，函数返回之后，用户控件的进程才会接触挂起。)
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/IO/img/image-(1).png" alt="image-(1)" style="zoom:50%;" />
+![image-(1)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/IO/img/image-(1).png)
 
 我们可以简单的通过一个例子：这是一个从磁盘文件读取并且通过socket写出的过程，对应的系统调用如下：
 
@@ -168,7 +173,7 @@ write(sockfd, buf, len);
 
 用程序调用mmap()，磁盘上的数据会通过DMA被拷贝的内核缓冲区，接着操作系统会把这段内核缓冲区与应用程序共享，这样就不需要把内核缓冲区的内容往用户空间拷贝。应用程序再调用write(),操作系统直接将内核缓冲区的内容拷贝到socket缓冲区中，这一切都发生在内核态，最后，socket缓冲区再把数据发到网卡去，可以通过一个图来形容：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/IO/img/drawio.svg" alt="drawio" style="zoom:67%;" />
+![drawio](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/IO/img/drawio.svg)
 
 这是使用的系统调用方法，**这种方式的I/O原理就是将用户缓冲区（user buffer）的内存地址和内核缓冲区（kernel buffer）的内存地址做一个映射，也就是说系统在用户态可以直接读取并操作内核空间的数据。**
 

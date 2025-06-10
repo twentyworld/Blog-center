@@ -1,3 +1,8 @@
+---
+title: Spring
+type: docs
+---
+
 # 基本
 
 本部分从最基本的Spring开始。配置文件:

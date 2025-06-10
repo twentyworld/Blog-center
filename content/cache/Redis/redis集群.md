@@ -1,69 +1,9 @@
-# Redis 集群数据
+---
+title: 2. redis集群
+type: docs
+---
 
-- [Redis 集群数据](#redis-集群数据)
-  - [一、单机数据库的实现](#一单机数据库的实现)
-    - [1. Redis数据库](#1-redis数据库)
-      - [1.1 Redis服务器中的数据库](#11-redis服务器中的数据库)
-      - [1.2.数据库的键空间](#12数据库的键空间)
-      - [1.3 键的过期时间](#13-键的过期时间)
-    - [1.4 **Redis**过期键删除策略](#14-redis过期键删除策略)
-      - [1.4.1过期删除策略](#141过期删除策略)
-        - [定时删除](#定时删除)
-        - [惰性删除](#惰性删除)
-        - [定期删除](#定期删除)
-      - [1.4.2 Redis采用的过期策略](#142-redis采用的过期策略)
-        - [惰性删除流程](#惰性删除流程)
-        - [定期删除流程](#定期删除流程)
-    - [2. RDB持久化](#2-rdb持久化)
-      - [2.1 RDB文件的创建](#21-rdb文件的创建)
-        - [2.1.1 save命令](#211-save命令)
-        - [2.1.2bgsave命令](#212bgsave命令)
-        - [2.1.3自动触发 RDB 持久化](#213自动触发-rdb-持久化)
-    - [3.AOF持久化](#3aof持久化)
-      - [3.1AOF的实现](#31aof的实现)
-        - [3.1.1命令追加](#311命令追加)
-        - [3.1.2 AOF 文件的写入与同步](#312-aof-文件的写入与同步)
-      - [3.2AOF重写](#32aof重写)
-        - [3.2.1AOF重写的实现原理](#321aof重写的实现原理)
-        - [3.2.2AOF后台重写](#322aof后台重写)
-    - [4.RDB和AOF优缺点](#4rdb和aof优缺点)
-      - [4.1RDB优缺点](#41rdb优缺点)
-      - [4.2.AOF优缺点](#42aof优缺点)
-      - [4.3如何选择RDB和AOF](#43如何选择rdb和aof)
-  - [多机数据库实现](#多机数据库实现)
-    - [1. 复制](#1-复制)
-      - [1.1 旧版复制功能的实现](#11-旧版复制功能的实现)
-        - [1.1.1 同步](#111-同步)
-        - [1.1.2 命令传播](#112-命令传播)
-        - [1.1.3 旧版复制功能的缺陷](#113-旧版复制功能的缺陷)
-      - [1.2 新版复制功能的实现](#12-新版复制功能的实现)
-        - [1.2.1 部分重同步的实现](#121-部分重同步的实现)
-          - [<1>复制偏移量](#1复制偏移量)
-          - [<2>复制积压缓冲区](#2复制积压缓冲区)
-          - [<3>服务器运行ID](#3服务器运行id)
-    - [2. Sentinel(哨兵)](#2-sentinel哨兵)
-      - [2.1 启动并初始化Sentinel](#21-启动并初始化sentinel)
-        - [2.1.1 初始化服务器](#211-初始化服务器)
-        - [2.1.2 使用Sentinel专用代码](#212-使用sentinel专用代码)
-        - [2.1.3 初始化Sentinel状态](#213-初始化sentinel状态)
-        - [2.1.4 初始化Sentinel状态的masters属性](#214-初始化sentinel状态的masters属性)
-        - [2.1.5 创建连向主服务器的连接](#215-创建连向主服务器的连接)
-      - [2.2 获取主服务器信息](#22-获取主服务器信息)
-      - [2.3 获取从服务器信息](#23-获取从服务器信息)
-      - [2.4 向主服务器和从服务器发送消息](#24-向主服务器和从服务器发送消息)
-      - [2.5 接收来自主服务器和从服务器的频道信息](#25-接收来自主服务器和从服务器的频道信息)
-        - [2.5.1 更新sentinels字典](#251-更新sentinels字典)
-        - [2.5.2 创建连接其他Sentinel的命令连接](#252-创建连接其他sentinel的命令连接)
-      - [2.6 检测主观下线状态](#26-检测主观下线状态)
-      - [2.7 检测客观下线状态](#27-检测客观下线状态)
-        - [2.7.1 发送SENTINEL is-master-down-by-addr命令](#271-发送sentinel-is-master-down-by-addr命令)
-        - [2.7.2 接收 SENTINEL is-master-down-by-addr 命令](#272-接收-sentinel-is-master-down-by-addr-命令)
-        - [2.7.3 接收 SENTINEL is-master-down-by-addr 命令的回复](#273-接收-sentinel-is-master-down-by-addr-命令的回复)
-      - [2.8选举领头Sentinel](#28选举领头sentinel)
-      - [2.9故障转移](#29故障转移)
-        - [2.9.1 选出新的主服务器](#291-选出新的主服务器)
-        - [2.9.2 修改从服务器的复制目标](#292-修改从服务器的复制目标)
-        - [2.9.3 将旧的主服务器变为从服务器](#293-将旧的主服务器变为从服务器)
+# Redis 集群数据
 
 ## 一、单机数据库的实现
 
@@ -71,7 +11,7 @@
 
 Redis数据设计如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image.png" alt="单机-image" style="zoom:50%;" />
+![单机-image](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image.png)
 
 #### 1.1 Redis服务器中的数据库
 
@@ -203,7 +143,7 @@ RDB是一种快照存储持久化方式，具体就是将Redis某一时刻的内
 
 save命令是一个同步操作。当客户端向服务器发送save命令请求进行持久化时，服务器会阻塞save命令之后的其他客户端的请求，直到数据同步完成。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image-(2).png" alt="单机-image-(2)" style="zoom:50%;" />
+![单机-image-(2)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image-(2).png)
 
 ##### 2.1.2bgsave命令
 
@@ -211,7 +151,7 @@ bgsave命令是后台异步执行快照操作，此时 Redis 仍然可以响应�
 
 具体操作是 Redis 进程执行 fork 操作创建子进程，RDB 持久化过程由子进程负责，完成后自动结束。Redis 只会在 fork 期间发生阻塞，但是一般时间都很短。图示，如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image-(3).png" alt="单机-image-(3)" style="zoom:50%;" />
+![单机-image-(3)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image-(3).png)
 
 ##### 2.1.3自动触发 RDB 持久化
 
@@ -327,7 +267,7 @@ def eventLoop():
 
 其中，flushAppendOnlyFile 函数的行为由服务器配置的 appendfsync 选项的值来决定， 各个不同值产生的行为如下表 所示。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image-(4).png" alt="单机-image-(4)" style="zoom:50%;" />
+![单机-image-(4)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image-(4).png)
 
 ####  3.2AOF重写
 
@@ -353,7 +293,7 @@ AOF文件来进行数据还原所需的时间就越多。
 
    图示，如下：
 
-   <img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image-(5).png" alt="单机-image-(5)" style="zoom:50%;" />
+   ![单机-image-(5)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image-(5).png)
 
 2. 第二步：当子进程完成AOF重写工作之后，它会向父进程发送一个信号，父进程在接到该信号之后，会调用信号处理函数，执行以下工作：
 
@@ -424,7 +364,7 @@ Redis 的复制功能分为同步（sync）和命令传播（command propagate�
 
 图示，如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image.png" alt="image" style="zoom:67%;" />
+![image](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image.png)
 
 ##### 1.1.3 旧版复制功能的缺陷
 
@@ -469,7 +409,7 @@ Redis中主从复制可以分为下面2种情况：
 
   复制积压缓冲区是由主服务器维护的一个固定长度(fixed-size)先进先出(FIFO)队列，默认大小为1MB。当主服务器进行命令传播时，它不仅会将写命令发送给所有从服务器，还会将写命令入队到复制积压缓冲区队列里面，如下图：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(1).png" alt="image-(1)" style="zoom:50%;" />
+![image-(1)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(1).png)
 
 当从服务器重新连上主服务器时，从服务器会通过psync命令将自己的复制偏移量offset发送给主服务器，主服务器会根据这个复制偏移量来决定对从服务器执行何种同步操作：
 
@@ -489,7 +429,7 @@ Redis中主从复制可以分为下面2种情况：
 
 详细执行流程如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(2).png" alt="image-(2)" style="zoom: 50%;" />
+![image-(2)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(2).png)
 
 ### 2. Sentinel(哨兵)
 
@@ -497,7 +437,7 @@ Sentinel(哨岗、哨兵)是Redis高可用性的解决方案：由一个或多�
 
 器，然后由新的主服务器代替已下线的主服务器继续处理命令请求。Sentinel系统如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(3).png" alt="image-(3)" style="zoom:50%;" />
+![image-(3)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(3).png)
 
 #### 2.1 启动并初始化Sentinel
 
@@ -621,7 +561,7 @@ Sentinel对每个被监视的主服务器会创建两个异步网络连接：
 
 图示，如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(4).png" alt="image-(4)" style="zoom:50%;" />
+![image-(4)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(4).png)
 
 #### 2.2 获取主服务器信息
 
@@ -641,7 +581,7 @@ Sentinel会以每10秒一次的频率，通过命令连接向被监视的主服�
 
 具体结构如下图所示：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(5).png" alt="image-(5)" style="zoom:80%;" />
+![image-(5)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(5).png)
 
 #### 2.3 获取从服务器信息
 
@@ -669,7 +609,7 @@ PUBLISH __sentinel__:hello "<s_ip>,<s_port>,<s_runid>,<s_epoch>,<m_name>,<m_ip>,
 
 参数含义如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(6).png" alt="image-(6)" style="zoom:67%;" />
+![image-(6)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(6).png)
 
 #### 2.5 接收来自主服务器和从服务器的频道信息
 
@@ -692,7 +632,7 @@ Senetinel会一直对**sentinel**:hello继续订阅直到Sentinel与服务器断
 
 图示，如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(7).png" alt="image-(7)" style="zoom:50%;" />
+![image-(7)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(7).png)
 
 ##### 2.5.2 创建连接其他Sentinel的命令连接
 
@@ -700,7 +640,7 @@ Senetinel会一直对**sentinel**:hello继续订阅直到Sentinel与服务器断
 
 Sentinel将形成相互连接的网络,如下图：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(8).png" alt="image-(8)" style="zoom:50%;" />
+![image-(8)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(8).png)
 
 #### 2.6 检测主观下线状态
 
@@ -715,7 +655,7 @@ SRI_S_DOWN标识，以此来表示实例进入主观下线状态。
 
 具体如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(9).png" alt="image-(9)" style="zoom:67%;" />
+![image-(9)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(9).png)
 
 #### 2.7 检测客观下线状态
 
@@ -728,13 +668,13 @@ SRI_S_DOWN标识，以此来表示实例进入主观下线状态。
 
 具体参数，如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(10).png" alt="image-(10)" style="zoom:50%;" />
+![image-(10)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(10).png)
 
 ##### 2.7.2 接收 SENTINEL is-master-down-by-addr 命令
 
 当一个 Sentinel (目标 Sentinel)接收到另一个 Sentine丨（源 Sentinel)发来的 SENTINEL is-master-down-by命令时，目标Sentinel会分析并取出命令请求中包含的各个参数, 并根据其中的主服务器IP和端口号，检查主服务器是否已下线，然后向源Sentinel返回一 条包含三个参数的Multi Bulk回复作为SENTINEL is-master-down-by命令的回复：<down_state>；<leader_runid；<leader_epoch>
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(11).png" alt="image-(11)" style="zoom:50%;" />
+![image-(11)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(11).png)
 
 ##### 2.7.3 接收 SENTINEL is-master-down-by-addr 命令的回复
 
@@ -742,7 +682,7 @@ SRI_S_DOWN标识，以此来表示实例进入主观下线状态。
 
 Sentinel会将主服务器实例结构flags属性的SRI_0_D0WN标识打开，表示主服务器已经进入客观下线状态。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(12).png" alt="image-(12)" style="zoom:67%;" />
+![image-(12)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(12).png)
 
 #### 2.8选举领头Sentinel
 
@@ -786,13 +726,13 @@ Sentinel会将主服务器实例结构flags属性的SRI_0_D0WN标识打开，表
 
 图示如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(13).png" alt="image-(13)" style="zoom:50%;" />
+![image-(13)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(13).png)
 
 ##### 2.9.2 修改从服务器的复制目标
 
 当新的主服务器出现之后，领头Sentinel下一步要做的就是，让已下线主服务器属下 的所有从服务器去复制新的主服务器，这一动作可以通过向从服务器发SLAVEOF命令来实现。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(14).png" alt="image-(14)" style="zoom:50%;" />
+![image-(14)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(14).png)
 
 ##### 2.9.3 将旧的主服务器变为从服务器
 

@@ -1,3 +1,8 @@
+---
+title: LSM树
+type: docs
+---
+
 # LSM
 
 > Log Structured Merge Trees(LSM) 
@@ -34,7 +39,7 @@
 
 
 
-<img src="image/lsm/v2-37576525d52091fd713bb13556c92861_1440w.jpg" alt="v2-37576525d52091fd713bb13556c92861_1440w" style="zoom:50%;" />
+![v2-37576525d52091fd713bb13556c92861_1440w](image/lsm/v2-37576525d52091fd713bb13556c92861_1440w.jpg)
 
 #### 2.1.1. MemTable
 
@@ -50,7 +55,7 @@
 
 **有序键值对集合，是LSM树组在磁盘中的数据结构。**<u>为了加快SSTable的读取，可以通过建立key的索引以及布隆过滤器来加快key的查找。</u>
 
-<img src="image/lsm/v2-9eeda5082f56b1df20fa555d36b0e0ae_1440w.png" alt="v2-9eeda5082f56b1df20fa555d36b0e0ae_1440w" style="zoom:67%;" />
+![v2-9eeda5082f56b1df20fa555d36b0e0ae_1440w](image/lsm/v2-9eeda5082f56b1df20fa555d36b0e0ae_1440w.png)
 
 这里需要关注一个重点，LSM树(Log-Structured-Merge-Tree)正如它的名字一样，LSM树会将所有的数据插入、修改、删除等操作记录(注意是操作记录)保存在内存之中，当此类操作达到一定的数据量后，再批量地顺序写入到磁盘当中。这与B+树不同，B+树数据的更新会直接在原数据所在处修改对应的值，但是LSM数的数据更新是日志式的，当一条数据更新是直接append一条更新记录完成的。这样设计的目的就是为了顺序写，不断地将Immutable MemTable flush到持久化存储即可，而不用去修改之前的SSTable中的key，保证了顺序写。
 
@@ -75,7 +80,7 @@ size-tiered策略保证每层SSTable的大小相近，同时限制每一层SSTab
 
 由此可以看出，当层数达到一定数量时，最底层的单个SSTable的大小会变得非常大。并且size-tiered策略会导致空间放大比较严重。即使对于同一层的SSTable，每个key的记录是可能存在多份的，只有当该层的SSTable执行compact操作才会消除这些key的冗余记录。
 
-<img src="image/lsm/195230-604b6edc9551eb66.webp" alt="195230-604b6edc9551eb66" style="zoom: 80%;" />
+![195230-604b6edc9551eb66](image/lsm/195230-604b6edc9551eb66.webp)
 
 #### 2.2.2 leveled策略
 
@@ -83,11 +88,11 @@ leveled策略也是采用分层的思想，每一层限制总文件的大小。
 
 但是跟size-tiered策略不同的是，<u>leveled会将每一层切分成多个大小相近的SSTable。这些SSTable是这一层是**全局有序**的，意味着一个key在每一层至多只有1条记录，不存在冗余记录。</u>之所以可以保证全局有序，是因为合并策略和size-tiered不同，接下来会详细提到。
 
-<img src="image/lsm/level_structure.png" alt="level_structure" style="zoom:50%;" />
+![level_structure](image/lsm/level_structure.png)
 
 每一层都是一个排序结果，因为每个SST文件中的key都是排好序的（参考[基于块的表格式](https://rocksdb.org.cn/doc/.html))。如果需要定位一个key，我们先二分查找所有文件的起始和结束key，定位哪个文件有这个key，然后二分查找具体的文件，来定位key的位置。总的来说，就是在该层的所有key里面进行二分查找。
 
-<img src="image/lsm/level_files.png" alt="level_files" style="zoom: 33%;" />
+![level_files](image/lsm/level_files.png)
 
 
 
@@ -95,29 +100,29 @@ leveled策略也是采用分层的思想，每一层限制总文件的大小。
 
 <u>当L0的文件数量到达level0_file_num_compaction_trigger，压缩(compaction)就会被触发，L0的文件会被合并进L1。通常我们需要把所有L0的文件都选上，因为他们通常会有交集：</u>
 
-<img src="image/lsm/pre_l0_compaction.png" alt="pre_l0_compaction" style="zoom:38%;" />
+![pre_l0_compaction](image/lsm/pre_l0_compaction.png)
 
 <u>L1的总大小超过L1本身大小限制：</u>
 
-<img src="image/lsm/post_l0_compaction.png" alt="post_l0_compaction" style="zoom:38%;" />
+![post_l0_compaction](image/lsm/post_l0_compaction.png)
 
 <u>此时会从L1中选择至少一个文件，然后把它跟L2***有交集的部分(非常关键)***进行合并。生成的文件会放在L2:</u>
 
-<img src="image/lsm/pre_l1_compaction.png" alt="pre_l1_compaction" style="zoom:38%;" />
+![pre_l1_compaction](image/lsm/pre_l1_compaction.png)
 
 如上图所示，此时L1第二SSTable的key的范围覆盖了L2中前三个SSTable，那么就需要将L1中第二个SSTable与L2中前三个SSTable执行Compact操作。
 
 <u>如果L2合并后的结果仍旧超出L5的阈值大小，需要重复之前的操作 —— 选至少一个文件然后把它合并到下一层:</u>
 
-<img src="image/lsm/post_l1_compaction.png" alt="post_l1_compaction" style="zoom:38%;" />
+![post_l1_compaction](image/lsm/post_l1_compaction.png)
 
 然后会继续循环往复往下compact。
 
-<img src="image/lsm/pre_l2_compaction.png" alt="pre_l2_compaction" style="zoom:38%;" />
+![pre_l2_compaction](image/lsm/pre_l2_compaction.png)
 
 需要注意的是，***多个不相干的合并是可以并发进行的\***：
 
-<img src="image/lsm/v2-2065db94c8837edd583b6ec639eaae6e_1440w.jpg" alt="v2-2065db94c8837edd583b6ec639eaae6e_1440w" style="zoom:50%;" />
+![v2-2065db94c8837edd583b6ec639eaae6e_1440w](image/lsm/v2-2065db94c8837edd583b6ec639eaae6e_1440w.jpg)
 
 <u>leveled策略相较于size-tiered策略来说，每层内key是不会重复的，即使是最坏的情况，除开最底层外，其余层都是重复key，按照相邻层大小比例为10来算，冗余占比也很小。**因此空间放大问题得到缓解。但是写放大问题会更加突出**。</u>举一个最坏场景，如果LevelN层某个SSTable的key的范围跨度非常大，覆盖了LevelN+1层所有key的范围，那么进行Compact时将涉及LevelN+1层的全部数据。
 
@@ -137,13 +142,13 @@ leveled策略也是采用分层的思想，每一层限制总文件的大小。
 
 下面用Cassandra的size-tiered compaction策略举两个例子，以方便理解。每层SST个数的阈值仍然采用默认值4。重复写入一个400万条数据的集合（约1.2GB大，保证unique key），共重复写入15次来模拟数据更新，时间与磁盘占用的曲线图如下。
 
-<img src="image/lsm/195230-f7d5dedb621bf4d2.webp" alt="195230-f7d5dedb621bf4d2" style="zoom:50%;" />
+![195230-f7d5dedb621bf4d2](image/lsm/195230-f7d5dedb621bf4d2.webp)
 
 最高会占用多达9.3GB磁盘空间，放大因子为7.75。虽然中途也会触发compaction，但是最低只能压缩到3.5GB左右，仍然有近3倍的放大。这是因为重复key过多，就算每层compaction过后消除了本层的空间放大，但key重复的数据仍然存在于较低层中，始终有冗余。只有手动触发了full compaction（即图中2500秒过后的最后一小段），才能完全消除空间放大，但我们也知道full compaction是极耗费性能的。
 
 #### 3.1.2 Leveled compaction
 
-<img src="image/lsm/195230-5bc2a7a6c598b824.webp" alt="195230-5bc2a7a6c598b824" style="zoom:50%;" />
+![195230-5bc2a7a6c598b824](image/lsm/195230-5bc2a7a6c598b824.webp)
 
 持续更新实验，磁盘占用量的峰值大幅降低，从原来的9.3GB缩减到了不到4GB。
 

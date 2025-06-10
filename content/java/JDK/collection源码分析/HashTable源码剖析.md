@@ -1,3 +1,8 @@
+---
+title: HashTable源码剖析
+type: docs
+---
+
 ##Hashtable简介
 
 HashTable同样是基于哈希表实现的，同样每个元素都是key-value对，其内部也是通过单链表解决冲突问题，容量不足（超过了阈值）时，同样会自动增长。

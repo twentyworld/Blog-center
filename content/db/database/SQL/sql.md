@@ -1,3 +1,8 @@
+---
+title: sql
+type: docs
+---
+
 # SQL基础
 # 一、基础
 

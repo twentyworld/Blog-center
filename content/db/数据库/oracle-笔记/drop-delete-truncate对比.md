@@ -1,3 +1,8 @@
+---
+title: drop-delete-truncate对比
+type: docs
+---
+
 ## `drop-delete-truncate`的对比
 
 ### 背景知识

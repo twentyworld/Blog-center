@@ -1,3 +1,8 @@
+---
+title: Callable
+type: docs
+---
+
 # Callable
 
 ##### 1. 为什么使用Callable

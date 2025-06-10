@@ -1,3 +1,8 @@
+---
+title: Vector源码剖析
+type: docs
+---
+
 ##Vector简介
 Vector也是基于数组实现的，是一个动态数组，其容量能自动增长。
 

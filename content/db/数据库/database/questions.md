@@ -1,3 +1,8 @@
+---
+title: questions
+type: docs
+---
+
 # 面试题
 
 ### MySQL有哪些日志，分别是什么用处？

@@ -1,41 +1,16 @@
+---
+title: 3. redis的典型应用
+type: docs
+---
+
 
 
 
 # Redis典型应用
 
-- [Redis典型应用](#redis典型应用)
-  - [1. 分布式缓存](#1-分布式缓存)
-  - [2. Redis分布式锁](#2-redis分布式锁)
-    - [2.1 Redis实现分布式锁的原理](#21-redis实现分布式锁的原理)
-      - [2.1.1 加锁](#211-加锁)
-      - [2.1.2 解锁](#212-解锁)
-        - [解锁的“错误姿势”](#解锁的错误姿势)
-        - [“正确姿势”--利用lua命令解锁](#正确姿势--利用lua命令解锁)
-    - [2.2 Redisson分布式锁](#22-redisson分布式锁)
-    - [2.3 集群环境 Redis分布式锁RedLock](#23-集群环境-redis分布式锁redlock)
-  - [3.Redis队列](#3redis队列)
-    - [3.1 消息队列简介](#31-消息队列简介)
-    - [3.2 Redis实现轻量级消息队列](#32-redis实现轻量级消息队列)
-      - [3.2.1 Redis的PUSH/POP机制](#321-redis的pushpop机制)
-      - [3.2.2 Redis的RPOPLPUSH](#322-redis的rpoplpush)
-      - [3.2.3 Redis的PubSub机制](#323-redis的pubsub机制)
-    - [3.3 Redis消息队列的局限](#33-redis消息队列的局限)
-  - [4. Redis排行榜](#4-redis排行榜)
-    - [4.1 sorted set简介](#41-sorted-set简介)
-    - [4.2 Redis排序相关命令](#42-redis排序相关命令)
-  - [5. Redis项目列表](#5-redis项目列表)
-  - [6.网站的PV/UV统计](#6网站的pvuv统计)
-    - [6.1 计数器统计PV](#61-计数器统计pv)
-    - [6.2 Redis BitMap统计UV](#62-redis-bitmap统计uv)
-    - [6.3 HyperLogLog 统计UV](#63-hyperloglog-统计uv)
-      - [6.3.1 HyperLogLog实现原理](#631-hyperloglog实现原理)
-      - [6.3.2 Redis Hyperloglog命令源码解析](#632-redis-hyperloglog命令源码解析)
-  - [结语](#结语)
-  - [参考文献](#参考文献)
-
 Redis因其高性能、丰富的数据结构等特性在互联网中有着广泛应用：应用最多的领域是缓存，同时也是分布式锁常用的实现方式，除此之外Redis还可以应用于实现消息队列、排行榜、网站统计等，总结如下图：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/典型应用.png" alt="典型应用" style="zoom: 67%;" />
+![典型应用](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/典型应用.png)
 
 本文对其中几个典型应用的原理和实现方式进行详细介绍。
 
@@ -121,7 +96,7 @@ SET KEY VALUE [NX|XX] [EX seconds] [PX milliseconds]
 
 举例，若设置锁的超时时间不合理，客户端A锁过期时间为2s，锁过期之后客户端B获得了该锁，A执行完成任务用del命令解锁的话删除的就是客户端B的锁，如下图所示：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-12-下午7.43.12.png" alt="屏幕快照 2019-04-12 下午7.43.12" style="zoom:50%;" />
+![屏幕快照 2019-04-12 下午7.43.12](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-12-下午7.43.12.png)
 
  那么是否可以利用代码判断客户端标识呢？利用if语句进行判断，只有当锁的客户端标识与解锁命令发起的客户端相同，才能进行解锁，如下代码所示：
 
@@ -137,7 +112,7 @@ if判断客户端标识解锁
 
 上面代码的实现解锁也是错误的，如果客户端A持有锁，并现在执行解锁操作，if判断标识相等；但此时A的锁过期了，且客户端B与此同时获得了锁，A再执行del的操作，实际上是删除了客户端B的锁，示意图如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-12-下午7.47.22.png" alt="屏幕快照 2019-04-12 下午7.47.22" style="zoom:50%;" />
+![屏幕快照 2019-04-12 下午7.47.22](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-12-下午7.47.22.png)
 
 ##### “正确姿势”--利用lua命令解锁
 
@@ -151,7 +126,7 @@ Redis使用lua脚本的好处：
 
 下面就是用来解锁的Lua脚本：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-24-下午5.27.12.png" alt="屏幕快照 2019-03-24 下午5.27.12" style="zoom:67%;" />上述参数中，KEYS[1]赋值为锁名称lockKey，get命令获取lockKey对应的value值（即该锁对应的客户端标识），ARGV[1]赋值为解锁请求的客户端标识，若二者相等才执行del命令解锁。在eval命令执行Lua代码的时候，Lua代码将被当成一个命令去执行，并且直到eval命令执行完成，Redis才会执行其他命令，实现原子性解锁。举例，当前有个库存锁“stockLock”，客户端A已持有，加锁时设置的value值为客户端A的标识"client-a"；那么解锁的时间就会判断“stockLock”的value值是否为"client-a"，确认标识之后才能del命令删除key值，解锁成功。
+![屏幕快照 2019-03-24 下午5.27.12](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-24-下午5.27.12.png)上述参数中，KEYS[1]赋值为锁名称lockKey，get命令获取lockKey对应的value值（即该锁对应的客户端标识），ARGV[1]赋值为解锁请求的客户端标识，若二者相等才执行del命令解锁。在eval命令执行Lua代码的时候，Lua代码将被当成一个命令去执行，并且直到eval命令执行完成，Redis才会执行其他命令，实现原子性解锁。举例，当前有个库存锁“stockLock”，客户端A已持有，加锁时设置的value值为客户端A的标识"client-a"；那么解锁的时间就会判断“stockLock”的value值是否为"client-a"，确认标识之后才能del命令删除key值，解锁成功。
 
 ### 2.2 Redisson分布式锁
 
@@ -177,7 +152,7 @@ Redisson是Redis官网推荐的java语言实现分布式锁的项目，是一个
 
 其中，获取锁调用的是tryLockInnerAsync函数，源码如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-01-28-下午7.44.13.png" alt="屏幕快照-2019-01-28-下午7.44.13" style="zoom:67%;" />
+![屏幕快照-2019-01-28-下午7.44.13](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-01-28-下午7.44.13.png)
 
 上面tryLockInnerAsync函数中用到的Redis命令有：
 
@@ -195,7 +170,7 @@ Redisson是Redis官网推荐的java语言实现分布式锁的项目，是一个
 
 举例来说明，我们新建一个Redisson的锁用来锁商品库存，RLock lock0 = redisson.getLock("stockLock");  lock0对应的锁名称getName()即为“stockLock”，Redisson对应分布锁内存结构如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-14-下午10.19.50.png" alt="屏幕快照 2019-04-14 下午10.19.50" style="zoom:67%;" />
+![屏幕快照 2019-04-14 下午10.19.50](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-14-下午10.19.50.png)
 
 Redisson锁有可重入机制，即同一个线程在外层方法获取锁的时候再进入该线程的内层方法自动获取锁，无需再次申请，但需要记录重入次数。
 
@@ -203,23 +178,23 @@ Redisson锁有可重入机制，即同一个线程在外层方法获取锁的时
 
 函数主体是一段lua脚本来尝试获取锁。上面tryLockInnerAsync函数lua脚本中参数KEY[1]即getName方法获取的锁名称，对应举例中的“stockLock”。两个变量，ARGV[1]leaseTime，锁失效时间；ARGV[2]即为Redisson客户端ID+线程ID。执行lua脚本tryLockInnerAsync获取锁的逻辑图如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-14-下午10.25.27.png" alt="屏幕快照 2019-04-14 下午10.25.27" style="zoom:67%;" />
+![屏幕快照 2019-04-14 下午10.25.27](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-14-下午10.25.27.png)
 
 如果通过 exists 命令发现当前 key 不存在，即锁没被占用，则执行 hset 写入 Hash 类型数据 **key：**全局锁名称；**field:** Redisson客户端ID+线程ID,；**value:**锁重入次数。并执行 pexpire 对该 key 设置失效时间，返回空值 nil，至此获取锁成功；如果通过 hexists 命令发现 Redis 中已经存在当前 key 和 field 的 Hash 数据，说明当前线程之前已经获取到锁，这里的锁是**可重入**的，执行 hincrby 对当前 key field 的值**加一**，并重新设置失效时间，返回空值，至此重入获取锁成功；最后是锁已被占用的情况，即当前 key 已经存在，但是 Hash 中的 field 与当前值不同，则执行 pttl 获取锁的剩余ttl并返回，至此获取锁失败。
 
 延时任务函数scheduleExpirationRenewal，源码如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/加锁2.png" alt="加锁2" style="zoom: 67%;" />
+![加锁2](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/加锁2.png)
 
 添加一个netty的Timeout回调任务，注册延时任务，在1/3 失效时间时触发，将锁的失效时间进行重置。
 
 **2.解锁**
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/加锁3.png" alt="加锁3" style="zoom:67%;" />
+![加锁3](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/加锁3.png)
 
 最终调用的是unlockInnerAsync函数进行解锁，源码如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-01-29-下午2.16.57.png" alt="屏幕快照-2019-01-29-下午2.16.57" style="zoom:67%;" />
+![屏幕快照-2019-01-29-下午2.16.57](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-01-29-下午2.16.57.png)
 
 函数主体也是一段lua脚本来释放锁。
 
@@ -227,7 +202,7 @@ Redisson锁有可重入机制，即同一个线程在外层方法获取锁的时
 
 变量有三个，ARGV[1]是发布在频道channel的解锁消息，值为0；ARGV[2] 锁失效时间；ARGV[3]是Redisson客户端ID+线程ID。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-15-上午8.43.19.png" alt="屏幕快照 2019-04-15 上午8.43.19" style="zoom:67%;" />
+![屏幕快照 2019-04-15 上午8.43.19](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-15-上午8.43.19.png)
 
 通过 exists 命令发现该锁不存在，即已被释放，发布信息解锁消息通知到指定的频道channel，同时返回1；如果锁存在，则判断锁是否被当前线程使用，如果不是直接返回nil；如果锁被当前线程使用，则将field域对应的value值减1；减1后的value值和0进行比较，如果大于0，重置失效时间，返回0；否则则认为该锁已被当前线程释放，删除锁，发布解锁消息，返回1；如果上面条件都没有命中返回nil。
 
@@ -245,7 +220,7 @@ Redisson锁有可重入机制，即同一个线程在外层方法获取锁的时
 
   非阻塞获取锁，如果获取不到锁就马上返回；阻塞锁是指当线程尝试获取锁失败时，在设置的超时时间内进行等待阻塞。上面无参的trylock即是非阻塞锁，阻塞锁可以通过Redisson中带参数的trylock来实现，源码如下：
 
-  <img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-24-下午10.28.51.png" alt="屏幕快照 2019-03-24 下午10.28.51" style="zoom:67%;" /> 
+  ![屏幕快照 2019-03-24 下午10.28.51](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-24-下午10.28.51.png) 
 
   在上面阻塞锁代码需要等待的场景主要有两个个地方，首先是在订阅时，等待订阅命令必须在指定的时间内完成；
 
@@ -257,7 +232,7 @@ Redisson锁有可重入机制，即同一个线程在外层方法获取锁的时
 
 上面的分布式锁在只有一个Redis实例的情况下安全性足以保证，但在集群环境中，却不能做到足够安全。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-06-01-下午4.50.15.png" alt="屏幕快照 2019-06-01 下午4.50.15" style="zoom:50%;" />
+![屏幕快照 2019-06-01 下午4.50.15](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-06-01-下午4.50.15.png)
 
 如图所示，若client1申请分布式锁成功，主节点故障挂掉，但是锁信息还未及时同步到从节点；此时Slave通过选举竞争成为新的主节点，若client2此时申请同一把分布锁，由于New Master内部没有该锁，于是client2申请锁成功，同一把锁被两个客户端拥有，违反了分布锁的互斥性，带来了不安全性。
 
@@ -265,7 +240,7 @@ Redisson锁有可重入机制，即同一个线程在外层方法获取锁的时
 
 不过，Redis作者Antirez不甘于此，提出了RedLock算法来解决集群环境下Redis分布锁安全性问题，[Distributed locks with Redis](https://redis.io/topics/distlock) 官网对算法过程有详细介绍，本文简单描述一下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-06-01-下午10.45.38.png" alt="屏幕快照 2019-06-01 下午10.45.38" style="zoom:67%;" />
+![屏幕快照 2019-06-01 下午10.45.38](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-06-01-下午10.45.38.png)
 
 RedLock算法的核心是“大多数机制”，需要提供多个Redis主节点，并且这些Redis节点相互独立；加锁时半数以上节点加锁成功才会认为申请锁成功。
 
@@ -285,7 +260,7 @@ RedLock算法比较复杂，不过已经有很多开源库对其进行了封装�
 
 ### 3.1 消息队列简介
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-18-上午10.08.56.png" alt="屏幕快照 2019-03-18 上午10.08.56" style="zoom:50%;" />
+![屏幕快照 2019-03-18 上午10.08.56](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-18-上午10.08.56.png)
 
 队列是单个服务实例内部使用，如一个jvm实例内部可以使用Deque、LinkedList、PriorityQueue、ArrayBlockingQueue、LinkedBlockingQueue等等。消息队列一般适用于分布式系统的消息存储和传递，目前使用较多的消息队列有ActiveMQ，RabbitMQ，ZeroMQ，Kafka，MetaMQ，RocketMQ等，它们有不同的技术实现，适用于各种场景的消息任务分发，但本质都是为生产者和消费者消息传递建立桥梁。
 
@@ -317,7 +292,7 @@ RPOP 移除并返回列表 key 的尾元素；LPOP移除并返回列表 key 的�
 
 综上，可以使用LPUSH/RPUSH操作入队列，使用LPOP/RPOP命令出队列。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-18-上午11.10.58.png" alt="屏幕快照 2019-03-18 上午11.10.58" style="zoom:50%;" />
+![屏幕快照 2019-03-18 上午11.10.58](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-18-上午11.10.58.png)
 
 **阻塞读取消息BRPOP命令**
 
@@ -333,7 +308,7 @@ BRPOP是列表的阻塞式(blocking)弹出, 当给定列表内没有任何元素
 
 可以通过Redis的**RPOPLPUSH**命令提供队列的备份机制：消费者程序在从主消息队列中取出消息之后再将其插入到备份队列中，直到消费者程序完成正常的处理逻辑后再将该消息从备份队列中删除。同时还可以提供一个守护进程，当发现备份队列中的消息过期时，可以重新将其再放回到主消息队列中，以便其它的消费者程序继续处理。**RPOPLPUSH**命令执行过程示意图如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-13-下午8.22.05.png" alt="屏幕快照 2019-03-13 下午8.22.05" style="zoom:50%;" />
+![屏幕快照 2019-03-13 下午8.22.05](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-13-下午8.22.05.png)
 
  **RPOPLPSUH命令**
 
@@ -360,15 +335,15 @@ SUBSCRIBE用于订阅一个或多个频道的信息，即subscribe channel1，ch
 
 Redis将频道的订阅关系保存到pubsub_channels字典结构里，如下图：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-16-下午6.25.55.png" alt="屏幕快照 2019-04-16 下午6.25.55" style="zoom:67%;" />  
+![屏幕快照 2019-04-16 下午6.25.55](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-16-下午6.25.55.png)  
 
 订阅频道的源码如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-18-下午5.31.14.png" alt="屏幕快照 2019-03-18 下午5.31.14" style="zoom:50%;" />
+![屏幕快照 2019-03-18 下午5.31.14](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-18-下午5.31.14.png)
 
 执行SUBSCRIBE命令，如果频道channel已有其它订阅者，Redis将客户端client添加到订阅者链表尾部；如果频道首次被订阅，那么在pubsub_channels创建对应channel的键，然后将client添加到链表中，举例如下图：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-16-下午6.30.18.png" alt="屏幕快照 2019-04-16 下午6.30.18" style="zoom:67%;" />
+![屏幕快照 2019-04-16 下午6.30.18](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-16-下午6.30.18.png)
 
 **发布消息PUBLISH命令**
 
@@ -376,13 +351,13 @@ Redis将频道的订阅关系保存到pubsub_channels字典结构里，如下图
 
 PUBLISH命令用于将消息msg发布到相应的频道，命令执行的源码如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-19-下午5.49.57.png" alt="屏幕快照 2019-03-19 下午5.49.57" style="zoom:67%;" />
+![屏幕快照 2019-03-19 下午5.49.57](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-19-下午5.49.57.png)
 
 Redis如果处于集群模式，则将消息向所有集群节点进行广播；Redis如果是非集群（即一般的主备机模式），则需要在客户端中增加REDIS_FORCE_REPL标记，以便PUBLISH命令之后能传递给从节点。
 
 具体发现消息的函数是pubsubPublishMessage，源码如下。在发送完所有订阅的client列表之后，如果有和当前频道匹配的其它频道，那么订阅这些模糊匹配的频道的客户端也会收到通知消息。关于模糊匹配的知识本文不再过多介绍。
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-19-下午9.17.00.png" alt="屏幕快照 2019-03-19 下午9.17.00" style="zoom:50%;" />
+![屏幕快照 2019-03-19 下午9.17.00](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-19-下午9.17.00.png)
 
 ### 3.3 Redis消息队列的局限
 
@@ -704,7 +679,7 @@ Redis 在 2.8.9 版本添加了 HyperLogLog 结构。HyperLogLog 是用来做基
 
    Redis 里使用 MurmurHash2 算法来计算集合数据的哈希值，该算法有很好的均匀性，即使输入集合数据按规律排列，哈希之后仍能保证数据随机分布，因此可以保证每bit出现0或1的概率均为1/2，Redis中采用的是MurmurHash2固定64比特版本，另外该算法的计算速度也较快。
 
-   <img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-12-下午7.55.55.png" alt="屏幕快照 2019-04-12 下午7.55.55" style="zoom:50%;" />
+   ![屏幕快照 2019-04-12 下午7.55.55](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-04-12-下午7.55.55.png)
 
    HLL算法思想的核心就在于通过保留少量的比特信息，来估计或观察消息流。二进制串中从低位开始第一个1出现的位置可以理解为抛硬币试验中第一次出现正面的抛掷次数k，那么基于上面的结论，我们可以通过多次抛硬币实验的最大抛到正面的次数来预估总共进行了多少次实验，同样可以通过第一个1出现位置的最大值kmax来预估总共有多少个不同的数字（整体基数）。
 
@@ -725,7 +700,7 @@ Redis 在 2.8.9 版本添加了 HyperLogLog 结构。HyperLogLog 是用来做基
 
    Redis中Hyperloglog的结构如下：
 
-   <img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-01-23-上午10.57.30.png" alt="屏幕快照-2019-01-23-上午10.57.30" style="zoom:50%;" />
+   ![屏幕快照-2019-01-23-上午10.57.30](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-01-23-上午10.57.30.png)
 
    Redis中规定分分桶个数16384，每个桶的kmax用6bit空间来存放，6*16384/8 字节，再加上结构头等数据，加起来一共12304个字节；用12K字节的内存占用，即可计算接近 264 个不同元素的基数。这和基数越大占用内存越大的其它计算基数的方式形成鲜明对比。
 
@@ -733,11 +708,11 @@ Redis 在 2.8.9 版本添加了 HyperLogLog 结构。HyperLogLog 是用来做基
 
    **密集存储**的结构很简单，就是连续的16384个6比特连起来的位图。
 
-   <img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-17-上午10.51.44.png" alt="屏幕快照 2019-03-17 上午10.51.44" style="zoom:50%;" />
+   ![屏幕快照 2019-03-17 上午10.51.44](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-17-上午10.51.44.png)
 
    **稀疏存储**针对的就是很多的桶计数值为0的情况，因此会有大量连续0的情况出现。
 
-   <img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-17-下午12.09.12.png" alt="屏幕快照 2019-03-17 下午12.09.12" style="zoom:50%;" />
+   ![屏幕快照 2019-03-17 下午12.09.12](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-17-下午12.09.12.png)
 
    如果连续计数值为0的桶，Redis会存储为00xxxxxx，00是前缀标识，后面的6比特值加1（加1是因为数量全0是没有意义的）表示连续0的个数，6比特最多表示64个桶计数连续为0；为了表示更多位的连续0个数，Redis又设计了16位的01xxxxxx xxxxxxxx形式，01是前缀标识，后面14比特值加1表示连续0的个数，这样最大能表示16384个桶连续计数为0，即Hyperloglog初始化状态。
 
@@ -761,21 +736,21 @@ HyperLogLog 内部可能会被更新， 若HyperLogLog 估计的基数在命令�
 
 添加元素命令实现的Redis源码如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-17-下午4.27.30.png" alt="屏幕快照 2019-03-17 下午4.27.30" style="zoom:50%;" />
+![屏幕快照 2019-03-17 下午4.27.30](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-17-下午4.27.30.png)
 
 继续看添加元素的hllAdd函数实现：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-01-23-上午11.44.15.png" alt="屏幕快照-2019-01-23-上午11.44.15" style="zoom:50%;" />
+![屏幕快照-2019-01-23-上午11.44.15](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-01-23-上午11.44.15.png)
 
 根据encoding值进行判断，如果为HLL_DENSE（值为0）进入密集模式，为HLL_SPARSE（值为1）则进入稀疏模式，其他情况无效直接返回-1。
 
 以HLL_DENSE密集模式为例：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-17-下午4.32.19.png" alt="屏幕快照 2019-03-17 下午4.32.19" style="zoom:50%;" />
+![屏幕快照 2019-03-17 下午4.32.19](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-17-下午4.32.19.png)
 
 调用hllPatLen函数计算元素经过哈希之后第一个1出现的位置，如果计数值发生变化，则进行更新并返回1，没有变化则返回0，hllPatLen函数源码如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-23-上午11.25.51.png" alt="屏幕快照 2019-03-23 上午11.25.51" style="zoom:50%;" />
+![屏幕快照 2019-03-23 上午11.25.51](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-23-上午11.25.51.png)
 
 上面是最新的Redis5.0的hllPatLen函数写法，hash右移和bit初始值较之前Redis版本稍作改动，增强了代码可读性，但逻辑仍一致。
 
@@ -785,7 +760,7 @@ HyperLogLog 内部可能会被更新， 若HyperLogLog 估计的基数在命令�
 
 当PFCOUNT命令作用于单个键时，返回储存在给定键的 HyperLogLog 的基数估计， 如果键不存在，那么返回 0；当PFCOUNT命令作用于多个键时，则需要合并所有的键（求并集），然后计算其基数，源码如下：
 
-<img src="https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-23-上午11.54.55.png" alt="屏幕快照 2019-03-23 上午11.54.55" style="zoom:50%;" />
+![屏幕快照 2019-03-23 上午11.54.55](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/image/屏幕快照-2019-03-23-上午11.54.55.png)
 
 ## 结语
 

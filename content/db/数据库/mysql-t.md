@@ -1,3 +1,8 @@
+---
+title: mysql-t
+type: docs
+---
+
 # Mysql
 ## 一. 存储引擎的区别
 #### 1. InnoDB

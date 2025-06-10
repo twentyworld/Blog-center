@@ -1,3 +1,8 @@
+---
+title: comparable_vs_comparator
+type: docs
+---
+
 #### Java中Comparable和Comparator比较
 
 #### Comparable 简介

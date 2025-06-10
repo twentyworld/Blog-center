@@ -1,3 +1,8 @@
+---
+title: Java中的内存泄漏
+type: docs
+---
+
 #Java中的内存泄漏
 ---
 
