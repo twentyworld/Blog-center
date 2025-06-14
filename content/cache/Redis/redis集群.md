@@ -11,7 +11,7 @@ type: docs
 
 Redis数据设计如下：
 
-![单机-image](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image.png)
+![单机-image](集群数据-image/单机-image.png)
 
 #### 1.1 Redis服务器中的数据库
 
@@ -23,7 +23,7 @@ struct redisServer {
   redisDb *db;
   //服务器数据库数量
   int dbnum
-}；
+};
 ```
 
 #### 1.2.数据库的键空间
@@ -45,7 +45,7 @@ typedef struct redisDb {
 
     // ...
 
-} redisDb;
+} ;
 ```
 
 #### 1.3 键的过期时间
@@ -68,68 +68,69 @@ typedef struct redisDb {
 
     // ...
 
-} redisDb;
+};
 ```
 
-### 1.4 **Redis**过期键删除策略
+#### 1.4 **Redis**过期键删除策略
 
-#### 1.4.1过期删除策略
+##### 1.4.1过期删除策略
 
-##### 定时删除
+###### 定时删除
 
-含义：在设置key的过期时间的同时，为该key创建一个定时器，让定时器在key的过期时间来临时，对key进行删除
+<u>含义：在设置key的过期时间的同时，为该key创建一个定时器，让定时器在key的过期时间来临时，对key进行删除</u>
 
-优点：保证内存被尽快释放
+- 优点：保证内存被尽快释放
+- 缺点：
+  1. 若过期key很多，删除这些key会占用很多的CPU时间，在CPU时间紧张的情况下，CPU不能把所有的时间用来做要紧的事儿，还需要去花时间删除这些key
+  2. 定时器的创建耗时，若为每一个设置过期时间的key创建一个定时器（将会有大量的定时器产生），性能影响严重
 
-缺点：
+###### 惰性删除
 
-- 若过期key很多，删除这些key会占用很多的CPU时间，在CPU时间紧张的情况下，CPU不能把所有的时间用来做要紧的事儿，还需要去花时间删除这些key
-- 定时器的创建耗时，若为每一个设置过期时间的key创建一个定时器（将会有大量的定时器产生），性能影响严重
+<u>含义：key过期的时候不删除，每次从数据库获取key的时候去检查是否过期，若过期，则删除，返回null。</u>
 
-##### 惰性删除
+- 优点：删除操作只发生在从数据库取出key的时候发生，而且只删除当前key，所以对CPU时间的占用是比较少的，而且此时的删除是已经到了非做不可的地步（如果此时还不删除的话，我们就会获取到了已经过期的key了）
+- 缺点：若大量的key在超出超时时间后，很久一段时间内，都没有被获取过，那么可能发生内存泄露（无用的垃圾占用了大量的内存）
 
-含义：key过期的时候不删除，每次从数据库获取key的时候去检查是否过期，若过期，则删除，返回null。
+###### 定期删除
 
-优点：删除操作只发生在从数据库取出key的时候发生，而且只删除当前key，所以对CPU时间的占用是比较少的，而且此时的删除是已经到了非做不可的地步（如果此时还不删除的话，我们就会获取到了已经过期的key了）
+<u>含义：每隔一段时间执行一次删除过期key操作</u>
 
-缺点：若大量的key在超出超时时间后，很久一段时间内，都没有被获取过，那么可能发生内存泄露（无用的垃圾占用了大量的内存）
-
-##### 定期删除
-
-含义：每隔一段时间执行一次删除过期key操作
-
-优点：
+**优点：**
 
 - 通过限制删除操作的时长和频率，来减少删除操作对CPU时间的占用
 - 定期删除过期key
 
-缺点
+**缺点**
 
 - 在内存友好方面，不如"定时删除"
 - 在CPU时间友好方面，不如"惰性删除"
 
-难点
+**难点**
 
 - 合理设置删除操作的执行时长（每次删除执行多长时间）和执行频率（每隔多长时间做一次删除）（这个要根据服务器运行情况来定了）
 
-#### 1.4.2 Redis采用的过期策略
+##### 1.4.2 Redis采用的过期策略
 
 **Redis采用的过期策略：**惰性删除+定期删除
 
-##### 惰性删除流程
+###### 惰性删除流程
+{{< callout >}}
+- <u>在进行get或set等操作时，先检查key是否过期，</u>
+- <u>若过期，删除key，然后执行相应操作；</u>
+- <u>若没过期，直接执行相应操作</u>
+{{< /callout >}}
 
-- 在进行get或set等操作时，先检查key是否过期，
-- 若过期，删除key，然后执行相应操作；
-- 若没过期，直接执行相应操作
 
-##### 定期删除流程
+###### 定期删除流程
 
 简单而言，对每一个数据库随机删除小于等于指定个数个过期key
+{{< callout >}}
+- <u>遍历每个数据库（就是redis.conf中配置的"database"数量，默认为16），检查当前库中的指定个数个key（默认是每个库检查20个key，注意相当于该循环执行20次，循环体时下边的描述）</u>
+- <u>如果当前库中没有一个key设置了过期时间，直接执行下一个库的遍历</u>
+- <u>随机获取一个设置了过期时间的key，检查该key是否过期，如果过期，删除key</u>
+- <u>判断定期删除操作是否已经达到指定时长，若已经达到，直接退出定期删除。</u>
+{{< /callout >}}
 
-- 遍历每个数据库（就是redis.conf中配置的"database"数量，默认为16），检查当前库中的指定个数个key（默认是每个库检查20个key，注意相当于该循环执行20次，循环体时下边的描述）
-- 如果当前库中没有一个key设置了过期时间，直接执行下一个库的遍历
-- 随机获取一个设置了过期时间的key，检查该key是否过期，如果过期，删除key
-- 判断定期删除操作是否已经达到指定时长，若已经达到，直接退出定期删除。
 
 ### 2. RDB持久化
 
@@ -143,7 +144,7 @@ RDB是一种快照存储持久化方式，具体就是将Redis某一时刻的内
 
 save命令是一个同步操作。当客户端向服务器发送save命令请求进行持久化时，服务器会阻塞save命令之后的其他客户端的请求，直到数据同步完成。
 
-![单机-image-(2)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image-(2).png)
+![单机-image-(2)](集群数据-image/单机-image-(2).png)
 
 ##### 2.1.2bgsave命令
 
@@ -151,7 +152,7 @@ bgsave命令是后台异步执行快照操作，此时 Redis 仍然可以响应�
 
 具体操作是 Redis 进程执行 fork 操作创建子进程，RDB 持久化过程由子进程负责，完成后自动结束。Redis 只会在 fork 期间发生阻塞，但是一般时间都很短。图示，如下：
 
-![单机-image-(3)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image-(3).png)
+![单机-image-(3)](集群数据-image/单机-image-(3).png)
 
 ##### 2.1.3自动触发 RDB 持久化
 
@@ -215,7 +216,7 @@ Redis客户端和服务端之间使用一种名为RESP(REdis Serialization Proto
 
 协议描述图，如下：
 
-![8793587-3becf73b1945c422](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/8793587-3becf73b1945c422.png)
+![8793587-3becf73b1945c422](集群数据-image/8793587-3becf73b1945c422.png)
 
 ##### 3.1.1命令追加
 
@@ -267,7 +268,7 @@ def eventLoop():
 
 其中，flushAppendOnlyFile 函数的行为由服务器配置的 appendfsync 选项的值来决定， 各个不同值产生的行为如下表 所示。
 
-![单机-image-(4)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image-(4).png)
+![单机-image-(4)](集群数据-image/单机-image-(4).png)
 
 ####  3.2AOF重写
 
@@ -293,7 +294,7 @@ AOF文件来进行数据还原所需的时间就越多。
 
    图示，如下：
 
-   ![单机-image-(5)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/单机-image-(5).png)
+   ![单机-image-(5)](集群数据-image/单机-image-(5).png)
 
 2. 第二步：当子进程完成AOF重写工作之后，它会向父进程发送一个信号，父进程在接到该信号之后，会调用信号处理函数，执行以下工作：
 
@@ -364,7 +365,7 @@ Redis 的复制功能分为同步（sync）和命令传播（command propagate�
 
 图示，如下：
 
-![image](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image.png)
+![image](集群数据-image/image.png)
 
 ##### 1.1.3 旧版复制功能的缺陷
 
@@ -409,7 +410,7 @@ Redis中主从复制可以分为下面2种情况：
 
   复制积压缓冲区是由主服务器维护的一个固定长度(fixed-size)先进先出(FIFO)队列，默认大小为1MB。当主服务器进行命令传播时，它不仅会将写命令发送给所有从服务器，还会将写命令入队到复制积压缓冲区队列里面，如下图：
 
-![image-(1)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(1).png)
+![image-(1)](集群数据-image/image-(1).png)
 
 当从服务器重新连上主服务器时，从服务器会通过psync命令将自己的复制偏移量offset发送给主服务器，主服务器会根据这个复制偏移量来决定对从服务器执行何种同步操作：
 
@@ -429,7 +430,7 @@ Redis中主从复制可以分为下面2种情况：
 
 详细执行流程如下：
 
-![image-(2)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(2).png)
+![image-(2)](集群数据-image/image-(2).png)
 
 ### 2. Sentinel(哨兵)
 
@@ -437,7 +438,7 @@ Sentinel(哨岗、哨兵)是Redis高可用性的解决方案：由一个或多�
 
 器，然后由新的主服务器代替已下线的主服务器继续处理命令请求。Sentinel系统如下：
 
-![image-(3)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(3).png)
+![image-(3)](集群数据-image/image-(3).png)
 
 #### 2.1 启动并初始化Sentinel
 
@@ -561,7 +562,7 @@ Sentinel对每个被监视的主服务器会创建两个异步网络连接：
 
 图示，如下：
 
-![image-(4)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(4).png)
+![image-(4)](集群数据-image/image-(4).png)
 
 #### 2.2 获取主服务器信息
 
@@ -581,7 +582,7 @@ Sentinel会以每10秒一次的频率，通过命令连接向被监视的主服�
 
 具体结构如下图所示：
 
-![image-(5)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(5).png)
+![image-(5)](集群数据-image/image-(5).png)
 
 #### 2.3 获取从服务器信息
 
@@ -609,7 +610,7 @@ PUBLISH __sentinel__:hello "<s_ip>,<s_port>,<s_runid>,<s_epoch>,<m_name>,<m_ip>,
 
 参数含义如下：
 
-![image-(6)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(6).png)
+![image-(6)](集群数据-image/image-(6).png)
 
 #### 2.5 接收来自主服务器和从服务器的频道信息
 
@@ -632,7 +633,7 @@ Senetinel会一直对**sentinel**:hello继续订阅直到Sentinel与服务器断
 
 图示，如下：
 
-![image-(7)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(7).png)
+![image-(7)](集群数据-image/image-(7).png)
 
 ##### 2.5.2 创建连接其他Sentinel的命令连接
 
@@ -640,7 +641,7 @@ Senetinel会一直对**sentinel**:hello继续订阅直到Sentinel与服务器断
 
 Sentinel将形成相互连接的网络,如下图：
 
-![image-(8)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(8).png)
+![image-(8)](集群数据-image/image-(8).png)
 
 #### 2.6 检测主观下线状态
 
@@ -655,7 +656,7 @@ SRI_S_DOWN标识，以此来表示实例进入主观下线状态。
 
 具体如下：
 
-![image-(9)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(9).png)
+![image-(9)](集群数据-image/image-(9).png)
 
 #### 2.7 检测客观下线状态
 
@@ -668,13 +669,13 @@ SRI_S_DOWN标识，以此来表示实例进入主观下线状态。
 
 具体参数，如下：
 
-![image-(10)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(10).png)
+![image-(10)](集群数据-image/image-(10).png)
 
 ##### 2.7.2 接收 SENTINEL is-master-down-by-addr 命令
 
 当一个 Sentinel (目标 Sentinel)接收到另一个 Sentine丨（源 Sentinel)发来的 SENTINEL is-master-down-by命令时，目标Sentinel会分析并取出命令请求中包含的各个参数, 并根据其中的主服务器IP和端口号，检查主服务器是否已下线，然后向源Sentinel返回一 条包含三个参数的Multi Bulk回复作为SENTINEL is-master-down-by命令的回复：<down_state>；<leader_runid；<leader_epoch>
 
-![image-(11)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(11).png)
+![image-(11)](集群数据-image/image-(11).png)
 
 ##### 2.7.3 接收 SENTINEL is-master-down-by-addr 命令的回复
 
@@ -682,7 +683,7 @@ SRI_S_DOWN标识，以此来表示实例进入主观下线状态。
 
 Sentinel会将主服务器实例结构flags属性的SRI_0_D0WN标识打开，表示主服务器已经进入客观下线状态。
 
-![image-(12)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(12).png)
+![image-(12)](集群数据-image/image-(12).png)
 
 #### 2.8选举领头Sentinel
 
@@ -726,13 +727,13 @@ Sentinel会将主服务器实例结构flags属性的SRI_0_D0WN标识打开，表
 
 图示如下：
 
-![image-(13)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(13).png)
+![image-(13)](集群数据-image/image-(13).png)
 
 ##### 2.9.2 修改从服务器的复制目标
 
 当新的主服务器出现之后，领头Sentinel下一步要做的就是，让已下线主服务器属下 的所有从服务器去复制新的主服务器，这一动作可以通过向从服务器发SLAVEOF命令来实现。
 
-![image-(14)](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/缓存体系/Redis/集群数据-image/image-(14).png)
+![image-(14)](集群数据-image/image-(14).png)
 
 ##### 2.9.3 将旧的主服务器变为从服务器
 

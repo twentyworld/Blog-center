@@ -1,0 +1,4 @@
+/* 适用于 Hextra 主题的内容宽度调整 */
+.content {
+  max-width: 1700px !important; /* 调大内容区宽度 */
+}
