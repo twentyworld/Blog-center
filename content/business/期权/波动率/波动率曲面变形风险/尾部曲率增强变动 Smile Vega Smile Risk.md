@@ -1,5 +1,5 @@
 ---
-title: 尾部曲率增强变动 Smile Vega Smile Risk
+title: 3. 尾部曲率增强变动
 type: docs
 ---
 
