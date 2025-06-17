@@ -1,5 +1,5 @@
 ---
-title: 金融期权业务背景知识
+title: 期权业务
 type: docs
 sidebar:
   open: true
