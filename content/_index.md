@@ -25,7 +25,7 @@ toc: false
 ## Explore my business
 
 {{< cards cols = "1">}}
-  {{< card link="docs" title="金融知识" icon="book-open" tag="这是个大活了" tagType="warning">}}
+  {{< card link="docs" title="金融期权业务背景知识" icon="book-open" tag="mainly option" tagType="warning">}}
 {{< /cards >}}
 
 ## 你想要丈量我吗
