@@ -2,7 +2,6 @@
 title: 跨式组合（Strangle）
 type: docs
 ---
-
 # 跨式组合（Strangle）
 
 ![[https://optionalpha.com/strategies/long-strangle](https://optionalpha.com/strategies/long-strangle)](%E8%B7%A8%E5%BC%8F%E7%BB%84%E5%90%88%EF%BC%88Strangle%EF%BC%89%201f2d848d208680b682e4ea6f028207f7/image.png)

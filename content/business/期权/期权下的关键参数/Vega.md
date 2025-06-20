@@ -2,10 +2,9 @@
 title: Vega
 type: docs
 ---
-
 # Vega
 
-![image.png](Vega%201e3d848d208680b480ecc0ddb86fcde4/image.png)
+![image.png](Vega/image.png)
 
 # 一、基础定义
 

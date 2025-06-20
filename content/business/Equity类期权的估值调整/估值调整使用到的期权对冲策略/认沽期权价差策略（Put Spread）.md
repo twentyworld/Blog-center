@@ -2,7 +2,6 @@
 title: 认沽期权价差策略（Put Spread）
 type: docs
 ---
-
 # 认沽期权价差策略（Put Spread）
 
 <aside>
