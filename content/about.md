@@ -7,7 +7,7 @@ type: about
 
 ChatGPT对我的评价是这样的:
 > Describe me based on all our chats — make it catchy!
-> 
+>
 
 ---
 

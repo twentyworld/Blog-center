@@ -2,7 +2,6 @@
 title: 认购价差（Call Spread, CR）
 type: docs
 ---
-
 # 认购价差（Call Spread, CR）
 
 <aside>
