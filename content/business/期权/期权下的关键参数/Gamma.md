@@ -2,10 +2,9 @@
 title: Gamma
 type: docs
 ---
-
 # Gamma
 
-![image.png](Gamma%201e3d848d2086800bb75ed2420c3c9ec7/image.png)
+![image.png](Gamma/image.png)
 
 # 一、基础定义
 
@@ -28,7 +27,7 @@ $$
 > Gamma 衡量的是**期权的 “加速度”**，而非仅仅方向（Delta）或速度（Delta变化）。
 > 
 
-![image.png](Gamma%201e3d848d2086800bb75ed2420c3c9ec7/image%201.png)
+![image.png](Gamma/image%201.png)
 
 ## 2.关键特征
 
@@ -45,9 +44,9 @@ $$
 
 ### **2.1. 平值期权Gamma最大，虚值/实值Gamma趋近于0**
 
-![image.png](Gamma%201e3d848d2086800bb75ed2420c3c9ec7/image%202.png)
+![image.png](Gamma/image%202.png)
 
-![image.png](Gamma%201e3d848d2086800bb75ed2420c3c9ec7/image%203.png)
+![image.png](Gamma/image%203.png)
 
 ✅ **特征**：
 
@@ -71,7 +70,7 @@ $$
 
 ### **2.2. Gamma随到期日临近而剧增（尤其平值期权）**
 
-![image.png](Gamma%201e3d848d2086800bb75ed2420c3c9ec7/image%204.png)
+![image.png](Gamma/image%204.png)
 
 ✅ **特征**：
 
@@ -102,7 +101,7 @@ $$
 
 ### **2.3. Gamma与隐含波动率（IV）负相关**
 
-![image.png](Gamma%201e3d848d2086800bb75ed2420c3c9ec7/image%205.png)
+![image.png](Gamma/image%205.png)
 
 ✅ **特征**：
 

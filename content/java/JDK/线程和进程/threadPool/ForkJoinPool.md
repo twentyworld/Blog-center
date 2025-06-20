@@ -1,5 +1,0 @@
----
-title: ForkJoinPool
-type: docs
----
-

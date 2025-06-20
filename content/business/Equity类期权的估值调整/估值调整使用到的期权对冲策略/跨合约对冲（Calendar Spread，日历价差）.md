@@ -2,7 +2,6 @@
 title: 跨合约对冲（Calendar Spread，日历价差）
 type: docs
 ---
-
 # 跨合约对冲（Calendar Spread，日历价差）
 
 ![image.png](%E8%B7%A8%E5%90%88%E7%BA%A6%E5%AF%B9%E5%86%B2%EF%BC%88Calendar%20Spread%EF%BC%8C%E6%97%A5%E5%8E%86%E4%BB%B7%E5%B7%AE%EF%BC%89%201f2d848d208680c6b2eaf71f372ceb73/image.png)

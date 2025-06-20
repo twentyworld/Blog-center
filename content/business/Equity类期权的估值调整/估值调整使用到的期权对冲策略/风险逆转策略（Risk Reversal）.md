@@ -2,7 +2,6 @@
 title: 风险逆转策略（Risk Reversal）
 type: docs
 ---
-
 # 风险逆转策略（Risk Reversal）
 
 <aside>

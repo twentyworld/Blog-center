@@ -2,7 +2,6 @@
 title: 蝶式价差（Butterfly Spread）
 type: docs
 ---
-
 # 蝶式价差（Butterfly Spread）
 
 <aside>

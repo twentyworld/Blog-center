@@ -2,10 +2,9 @@
 title: Theta
 type: docs
 ---
-
 # Theta
 
-![image.png](Theta%201e0d848d208680e4a1f7cd5275f43c4c/image.png)
+![image.png](Theta/image.png)
 
 # 一、Theta的基本信息
 
@@ -45,14 +44,14 @@ Theta主要影响**时间价值**。随着时间流逝，期权的时间价值�
 - **时间风险量化器**：精确计算每个交易日消耗的期权权利金（Premium）
 - **策略收益平衡器**：在Delta对冲（Delta Hedging）中实现Gamma收益与Theta损耗的动态补偿
 
-![image.png](Theta%201e0d848d208680e4a1f7cd5275f43c4c/image%201.png)
+![image.png](Theta/image%201.png)
 
 - 蒙特卡洛模拟下的时间价值
     
     
-    ![image.png](Theta%201e0d848d208680e4a1f7cd5275f43c4c/image%202.png)
+    ![image.png](Theta/image%202.png)
     
-    ![image.png](Theta%201e0d848d208680e4a1f7cd5275f43c4c/image%203.png)
+    ![image.png](Theta/image%203.png)
     
 
 ## 3. Theta形成的微观机理
