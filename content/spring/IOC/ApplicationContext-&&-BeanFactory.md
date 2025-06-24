@@ -1,5 +1,5 @@
 ---
-title: ApplicationContext-&&-BeanFactory
+title: 3. ApplicationContext && BeanFactory
 type: docs
 ---
 
@@ -8,7 +8,8 @@ type: docs
 ### 定义
 我们可以看[官方文档][2].
 
-![img][1]
+![img](ApplicationContext-&&-BeanFactory.assets/v2-1006341abadfd3466b5b4587f349ab27_hd.jpg)
+
 ### 共同点
 BeanFactory和ApplicationContext是Spring的两大核心接口，而其中ApplicationContext是BeanFactory的子接口。它们都可以当做Spring的容器，Spring容器是生成Bean实例的工厂，并管理容器中的Bean。在基于Spring的Java EE应用中，所有的组件都被当成Bean处理，包括数据源，Hibernate的SessionFactory、事务管理器等。
 Spring容器最基本的接口就是BeanFactory。BeanFactory负责配置、创建、管理Bean，它有一个子接口ApplicationContext，也被称为Spring上下文，容器同时还管理着Bean和Bean之间的依赖关系。
@@ -48,11 +49,11 @@ MessageSource, 提供国际化的消息访问
 载入多个（有继承关系）上下文 ，使得每一个上下文都专注于一个特定的层次，比如应用的web层
 
 1. 利用MessageSource进行国际化
-  BeanFactory是不支持国际化功能的，因为BeanFactory没有扩展Spring中MessageResource接口。相反，由于ApplicationContext扩展了MessageResource接口，因而具有消息处理的能力(i18N)，具体spring如何使用国际化，以后章节会详细描述。
+    BeanFactory是不支持国际化功能的，因为BeanFactory没有扩展Spring中MessageResource接口。相反，由于ApplicationContext扩展了MessageResource接口，因而具有消息处理的能力(i18N)，具体spring如何使用国际化，以后章节会详细描述。
 
 2. 强大的事件机制(Event)
-  基本上牵涉到事件(Event)方面的设计，就离不开观察者模式。这种模式在java开发中是比较常用的，又是比较重要的。
-  ApplicationContext的事件机制主要通过ApplicationEvent和ApplicationListener这两个接口来提供的，和java swing中的事件机制一样。即当ApplicationContext中发布一个事件的时，所有扩展了ApplicationListener的Bean都将会接受到这个事件，并进行相应的处理。
+    基本上牵涉到事件(Event)方面的设计，就离不开观察者模式。这种模式在java开发中是比较常用的，又是比较重要的。
+    ApplicationContext的事件机制主要通过ApplicationEvent和ApplicationListener这两个接口来提供的，和java swing中的事件机制一样。即当ApplicationContext中发布一个事件的时，所有扩展了ApplicationListener的Bean都将会接受到这个事件，并进行相应的处理。
 
   Spring提供了部分内置事件，主要有以下几种：
 
@@ -92,7 +93,5 @@ ContextLoader有两个实现：ContextLoaderListener和ContextLoaderServlet。�
 
 
 [1]:https://pic3.zhimg.com/80/v2-1006341abadfd3466b5b4587f349ab27_hd.jpg
-
-
 [2]:https://docs.spring.io/spring/docs/5.0.6.BUILD-SNAPSHOT/spring-framework-reference/core.html#beans-beanfactory
 [3]:https://blog.csdn.net/u011202334/article/details/51509235

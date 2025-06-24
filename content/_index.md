@@ -15,7 +15,7 @@ toc: false
 ## Explore Storage and Trigger
 
 {{< cards >}}
-  {{< card link="io" title="Java IO" icon="book-open" tag="IO/Netty等" tagType="error">}}
+  <!-- {{< card link="io" title="Java IO" icon="book-open" tag="IO/Netty等" tagType="error">}} -->
   {{< card link="db" title="存储与查询" icon="book-open" tag="OLTP、OLAP等" tagType="error">}}
   {{< card link="cache" title="缓存" icon="book-open" tag="本地缓存与分布式" tagType="error">}}
   {{< card link="queue" title="队列" icon="book-open" tag="" tagType="error">}}

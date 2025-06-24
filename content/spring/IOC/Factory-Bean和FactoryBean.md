@@ -1,5 +1,5 @@
 ---
-title: Factory-Bean和FactoryBean
+title: 4. Factory-Bean和FactoryBean
 type: docs
 ---
 

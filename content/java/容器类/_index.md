@@ -2,5 +2,5 @@
 title: 1. java-collection
 type: docs
 sidebar:
-  open: false
+  open: true
 ---

@@ -187,7 +187,7 @@ BookKeeper的fencing特性可以很好的处理Broker脑裂问题。没有脑裂
 
 相比于 Apache Kafka 这样以分区为中心的系统，BookKeeper 在水平扩展的性能优势更加凸显。在 Apache Kafka 中，日志流（又称 Kafka 分区）仅顺序存储在一部分机器上，并且扩展 Kafka 集群需要大量数据进行再平衡，而再平衡操作本身就很消耗资源、易出错，且运维复杂。另外，在以分区为中心的系统上，损坏的单个磁盘要求系统复制整个日志流到新磁盘，以满足多副本要求。
 
-![why_bookkeeper_2_1](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/why_bookkeeper_2_1.webp)
+![why_bookkeeper_2_1](Pulsar/Bookkeeper/why_bookkeeper_2_1.webp)
 
 所有的日志分片跨 N 个可能的 bookie 复制到可配置数量的 bookie 上（图示中副本数为 3）。日志分片均匀分布，以在不重新平衡的条件下实现水平扩展。
 
@@ -248,7 +248,7 @@ Entries包含真正的数据，其中也包含一些元数据： 每个entry有�
 
 一个 stream 由多个 ledger 组成；每个 ledger 根据基于时间或空间的滚动策略循环。在 stream 被删除之前，stream 有可能存在相对较长的时间（几天、几个月，甚至几年）。**Stream 的主要数据保留机制是截断，包括根据基于时间或空间的保留策略删除最早的 ledger。**
 
-![stream](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/stream.png)
+![stream](Pulsar/Bookkeeper/stream.png)
 
 Ledger 和 stream 为历史数据和实时数据提供统一的存储抽象。在写入数据时，日志流流式传输或追尾传输实时数据记录。存储在 ledger 的实时数据成为历史数据。累积在 stream 中的数据不受单机容量的限制。
 
@@ -307,7 +307,7 @@ BookKeeper与Bookie交互有两个主要作用：一个是创建 ledger 或 stre
 
 如果整体来看上面的概念和流程的话，可以使用一张图来详细的解释：
 
-![why_bookkeeper1](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/why_bookkeeper1.webp)
+![why_bookkeeper1](Pulsar/Bookkeeper/why_bookkeeper1.webp)
 
 - <u>典型的 BookKeeper 安装包括元数据存储区（如 ZooKeeper）、bookie 集群，以及通过提供的客户端库与 bookie 交互的多个客户端。</u>
 - <u>为便于客户端的识别，bookie 会将自己广播到元数据存储区。</u>
@@ -330,7 +330,7 @@ BookKeeper与Bookie交互有两个主要作用：一个是创建 ledger 或 stre
 
 Apache BookKeeper 的架构如下图所示，它主要由三个组件构成：客户端 (client)、数据存储节点 (Bookie) 和元数据存储 Service Discovery（ZooKeeper），Bookies 在启动的时候向 ZooKeeper 注册节点，Client 通过 ZooKeeper 发现可用的 Bookie。
 
-![infra](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/infra.png)
+![infra](Pulsar/Bookkeeper/infra.png)
 
 
 
@@ -340,7 +340,7 @@ Apache BookKeeper 的架构如下图所示，它主要由三个组件构成：�
 
 我们可以简单的把一个 BookKeeper 服务端节点（即 bookie）分为三层：顶层是网络通信层（使用Netty），底层是磁盘IO层，中间层包含大量的缓存。我们可以把 Bookie 理解为一个纯粹的存储节点，负责尽可能快地写入和读取 ledger entry 数据，以及保证这些数据的安全。
 
-![main-infra](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/main-infra.png)
+![main-infra](Pulsar/Bookkeeper/main-infra.png)
 
 > 这个视图内部包含了多个模块和线程模型，接下来会逐层分析和解释它们之间的关系。
 
@@ -355,13 +355,13 @@ Apache BookKeeper 的架构如下图所示，它主要由三个组件构成：�
 
 读请求只会由 DbLedgerStorage 模块来处理，一般情况下我们会从读缓存中读到数据。如果在读缓存中没有读取到数据，我们会从磁盘上读取相应的 entry 数据，同时我们会预读一些后续的数据并放到读缓存中，这样在进行顺序读的时候，后续的 entry 数据就可以直接在读缓存里读到。
 
-![read-write-model](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/read-write-model.png)
+![read-write-model](Pulsar/Bookkeeper/read-write-model.png)
 
 ### 读写线程模型
 
 下图简单的展示了 bookie 中包含哪些线程和线程池，以及它们之间的通信关系。Netty 线程池负责处理所有的网络请求和响应，然后根据不同的请求类型会提交给4个线程池来处理后续逻辑。
 
-![read-write-thread](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/read-write-thread.png)
+![read-write-thread](Pulsar/Bookkeeper/read-write-thread.png)
 
 - Read 线程不受其他线程影响，它们可以独立完成整个读处理。
 - Long Poll 线程则需要等待 Write 线程的写事件通知。
@@ -374,7 +374,7 @@ Apache BookKeeper 的架构如下图所示，它主要由三个组件构成：�
 
 **BookKeeper 支持计算和磁盘 IO 的并行处理。计算的并行处理通过线程池来实现，磁盘IO的并行处理则是通过将磁盘IO分散到不同的磁盘目录来实现（每个磁盘目录可以挂载到不同的磁盘卷）。**
 
-![parallelization-read-write](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/parallelization-read-write.png)
+![parallelization-read-write](Pulsar/Bookkeeper/parallelization-read-write.png)
 
 值得注意的是，write, read, long poll 和 high priority这4类线程都是OrderedExecutor类的实例，这些线程组成一个大的线程组来提供服务，并与Ledger id绑定。Netty根据Ledger id来分发请求到响应的线程组进行处理。部分线程的默认线程数量:
 
@@ -391,19 +391,19 @@ Apache BookKeeper 的架构如下图所示，它主要由三个组件构成：�
 
 每个单独的 journal 目录都会创建一个独立的 Journal 实例，<u>每个 Journal 实例包含独立的线程模型来进行写磁盘和回调写处理响应的操作。</u>我们可以在 journalDirectories 配置多个 journal 磁盘目录。
 
-![multiple-jorunal](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/multiple-jorunal.png)
+![multiple-jorunal](Pulsar/Bookkeeper/multiple-jorunal.png)
 
 对应每个 ledger 磁盘目录，DbLedgerStorage 会创建一个 SingleDirectoryDbLedgerStorage 实例，每个实例包含一个写缓存、一个读缓存、DbStorage 线程、一组 ledger entry logs 文件和 RocksDB 索引文件。各实例之间互相独立，不会共享缓存和文件。我们可以通过 ledgerDirectories 来配置多个 ledger 目录。
 
-![multiple-read-write-ledger](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/multiple-read-write-ledger.png)
+![multiple-read-write-ledger](Pulsar/Bookkeeper/multiple-read-write-ledger.png)
 
 为了方便阅读，在本文后面将 SingleDirectoryDbLedgerStorage 简称为 DbLedgerStorage。一次请求由哪个线程和组件来处理，取决于线程池的大小以及 journal 和 ledger 目录的数量。
 
-![route-strategy](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/route-strategy.png)
+![route-strategy](Pulsar/Bookkeeper/route-strategy.png)
 
 默认情况下，写线程池只有1个线程。我们在后续博客里会介绍，这个线程池没有太多的处理需要完成。这样的并发处理架构使得 bookie 在具有多核 CPU 和多块磁盘的大型服务器上运行时，可以同时提高计算和磁盘IO的并发处理能力来提高性能。
 
-![write-strategy](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/write-strategy.png)
+![write-strategy](Pulsar/Bookkeeper/write-strategy.png)
 
 当然，我们知道给 BookKeeper 扩容最简单的方式还是增加 bookie 节点的数量，因为BookKeeper 本身具有弹性扩容的特性。
 
@@ -413,7 +413,7 @@ Apache BookKeeper 的架构如下图所示，它主要由三个组件构成：�
 
 ### 写请求实现
 
-![write-flow](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/write-flow.png)
+![write-flow](Pulsar/Bookkeeper/write-flow.png)
 
 当我们从 Netty server 接收到一个写请求，写请求的内容会被封装为一个对象并提交给处理写请求的线程池。<u>这个 entry 数据首先会被传给 DbLedgerStorage 模块并被添加到写缓存（内存缓存），然后传给 journal 模块并被添加到一个内存队列缓存中</u>**。journal 和 ledger 模块中的线程会分别从对应的缓存里获取 entry 内容并写入磁盘。**当 entry 写入 journal 磁盘后会触发同步的写请求响应。
 
@@ -421,7 +421,7 @@ Apache BookKeeper 的架构如下图所示，它主要由三个组件构成：�
 
 上面的那张图，更像是一个overview，下面我们将把视角放低一点，从内部看看，具体的调用链路：
 
-![write-logic](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/write-logic.png)
+![write-logic](Pulsar/Bookkeeper/write-logic.png)
 
 从上面的一些简单介绍，我们知道，bookkeeper可以配置多个Journal 实例和 DbLedgerStorage 实例，每个实例都有自己的线程、队列和缓存。所以当提到一些线程、缓存和队列时，这些也可能是并行存在的。接下来的一些解释，都是对上面的图的一些详细解释。如果对当前图比较清晰，可以跳过。
 
@@ -487,7 +487,7 @@ DbLedgerStorage存储写入，不仅可以由DbStorage线程完成，也可以�
 
 注意，Entry Log文件中，每次写入的Entry是来自于多个Ledger的，同一个存储中有多个Ledger的数据混杂在一起。经过排序，同一个Ledger的Entry会聚合在一起。在读取的时候，当前Entry的前后是同一个Ledger的概率高。如图，
 
-![entry-data-example](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/entry-data-example.webp)
+![entry-data-example](Pulsar/Bookkeeper/entry-data-example.webp)
 
 #### 写入瓶颈
 
@@ -503,7 +503,7 @@ DbLedgerStorage存储写入，不仅可以由DbStorage线程完成，也可以�
 
 BookKeeper的读取请求，主要是由DbLedgerStorage的getEntry(long ledgerId, long entryId)方法完成。架构图如下，
 
-![read-logic](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/read-logic.png)
+![read-logic](Pulsar/Bookkeeper/read-logic.png)
 
 先试图从缓存中获取数据：
 
@@ -554,7 +554,7 @@ Read Cache缓存抖动，主要出现在Read Cache大小不足的时候。假设
 
 下面让我们看看各种背压和内存限制机制。
 
-![back-pressure](https://raw.githubusercontent.com/twentyworld/knowledge-island/master/队列/分布式队列/Pulsar/Bookkeeper/back-pressure.png)
+![back-pressure](Pulsar/Bookkeeper/back-pressure.png)
 
 下面我们对一些关键节点做解释：
 

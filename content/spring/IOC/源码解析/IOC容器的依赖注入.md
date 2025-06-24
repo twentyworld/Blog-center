@@ -1,5 +1,5 @@
 ---
-title: IOC容器的依赖注入
+title: 2. IOC容器的依赖注入
 type: docs
 ---
 

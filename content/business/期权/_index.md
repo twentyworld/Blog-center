@@ -2,7 +2,7 @@
 title: 期权
 type: docs
 sidebar:
-  open: false
+  open: true
 ---
 
 

@@ -1,5 +1,5 @@
 ---
-title: Spring Web on Servlet
+title: 3. Spring Web on Servlet
 type: docs
 ---
 
@@ -35,63 +35,10 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 ```
 > In addition to using the ServletContext API directly, you can also extend AbstractAnnotationConfigDispatcherServletInitializer and override specific methods
 
-####1.2.1. Context Hierarchy
+#### 1.2.1. Context Hierarchy
 DispatcherServlet expects a WebApplicationContext, an extension of a plain ApplicationContext, for its own configuration. WebApplicationContext has a link to the ServletContext and Servlet it is associated with. It is also bound to the ServletContext such that applications can use static methods on RequestContextUtils to look up the WebApplicationContext if they need access to it.
 
 For many applications having a single WebApplicationContext is simple and sufficient. It is also possible to have a context hierarchy where one root WebApplicationContext is shared across multiple DispatcherServlet (or other Servlet) instances, each with its own child WebApplicationContext configuration.
 
 The root WebApplicationContext typically contains infrastructure beans such as data repositories and business services that need to be shared across multiple Servlet instances.
-![img][1]
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-[1]:https://docs.spring.io/spring/docs/current/spring-framework-reference/images/mvc-context-hierarchy.png
