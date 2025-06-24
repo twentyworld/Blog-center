@@ -23,13 +23,13 @@ Apache Pulsar选择一致性而不是可用性就像Bookkeeper和Zookeeper一样
 Apache Pulsar在上层具有高级别的Topic(主题)和Subscription(订阅)的概念，在底层数据存储在二进制文件中，这些数据交叉分布在多个服务器上的多个Topic。在其中包含很多的细节部分。我个人认为把它分成不同的抽象层更容易理解Apache Pulsar的架构设计，所以这就是我在这篇文章中要做的事情。
 
 接下来我们一层一层的进行分析
-![图1.分层抽象](/Users/temperlee/git-repo/knowledge-repo/Blog-center/content/queue/分布式队列/assets/70-20250624185922911.png)
+![图1.分层抽象](assets/70-20250624185922911.png)
 图1.分层抽象
 
 ## 第一层 - Topic、Subscription和Cursors
 
 我们将要简要介绍Topic(主题)、Subsription(订阅)和Cursors(游标)的基本概念，不会包含深层次的消息传递方式。
-![图2.Topic和Subscriptions](/Users/temperlee/git-repo/knowledge-repo/Blog-center/content/queue/分布式队列/assets/70-20250624185922914.png)
+![图2.Topic和Subscriptions](assets/70-20250624185922914.png)
 图2.Topic和Subscription
 消息存储在Topic中。逻辑上一个Topic是日志结构，每个消息都在这个日志结构中有一个偏移量。Apache Pulsar使用游标来跟踪偏移量。生产者将消息发送到一个指定的Topic，Apache Pulsar保证消息一旦被确认就不会丢失(正确的配置和非整个集群故障的情况下)。
 
@@ -58,7 +58,7 @@ Apache Pulsar通过允许消费者将Topic看做在消费者消费确认后删�
 现在该介绍Apache Bookkeeper了。我将在Apache Pulsar的背景下讨论Bookkeeper，尽管Bookkeeper是一个通用的分布式日志存储解决方案。
 
 首先，Bookkeeper将数据存储至集群中的节点上，每个Bookkeeper节点称为Bookie。其次，Pulsar和Bookkeeper都使用Apache Zookeeper来存储元数据和监控节点健康状况。
-![图3.Apache Pulsar、Bookkeeper和Zookeeper](/Users/temperlee/git-repo/knowledge-repo/Blog-center/content/queue/分布式队列/assets/70.png)
+![图3.Apache Pulsar、Bookkeeper和Zookeeper](assets/70.png)
 图3.Apache Pulsar、Bookkeeper和Zookeeper
 
 一个Topic实际上是一个ledgers流。Ledger本身就是一个日志。所以一系列的子日志(Ledgers)组成了一个父日志(Topic)。
@@ -67,13 +67,13 @@ Ledgers追加到一个Topic，条目(消息或者一组消息)追加到Ledgers�
 
 Ledgers本身也被分解为多个Fragment。Fragment是Bookkeeper集群中最小的分布单元
 
-![图4.条目存储在底层](/Users/temperlee/git-repo/knowledge-repo/Blog-center/content/queue/分布式队列/assets/70-20250624185922903.png)
+![图4.条目存储在底层](assets/70-20250624185922903.png)
 图4.条目存储在底层
 
 Topic是Pulsar中的概念。Ledger和Fragment是Bookkeeper中的概念，尽管Pulsar知道且使用Ledgers和Fragment。
 
 每个Ledger(由一个或多个Fragment组成)可以跨多个Bookkeeper节点(Bookies)进行复制，以实现数据容灾和提升读取性能。每个Fragment都在一组不同的Bookies中复制(存在足够的Bookies)。
-![图5.Apache Pulsar、Bookkeeper和Zookeeper协同工作](/Users/temperlee/git-repo/knowledge-repo/Blog-center/content/queue/分布式队列/assets/70-20250624185922958.png)
+![图5.Apache Pulsar、Bookkeeper和Zookeeper协同工作](assets/70-20250624185922958.png)
 图5.Apache Pulsar、Bookkeeper和Zookeeper协同工作
 
 每个Ledger有三个关键配置：
@@ -92,12 +92,12 @@ Ensemble Size (E) 决定了Pulsar写入Ledger可用的Bookies池的大小。每�
 
 Write Quorum (Qw) 是Pulsar将要写入的实际的Bookies数量。可以等于或者小于E。
 
-![图6.E = 3 Qw = 3](/Users/temperlee/git-repo/knowledge-repo/Blog-center/content/queue/分布式队列/assets/70-20250624185922899.png)
+![图6.E = 3 Qw = 3](assets/70-20250624185922899.png)
 图6.E = 3 Qw = 3
 
 当Qw小于E时，以条带化的方式分配读/写即每个Bookie只提供读写请求的子集。因此可以提升吞吐量，将次延迟。
 
-![图7.条带化](/Users/temperlee/git-repo/knowledge-repo/Blog-center/content/queue/分布式队列/assets/70-20250624185922923.png)
+![图7.条带化](assets/70-20250624185922923.png)
 图7.条带化
 
 Ack Quorum (Qa) 是确认写入Bookies的数量，Pulsar Broker将确认发送给客户端。为了一致性，Qa应该是：(Qw + 1) / 2 或者更大。
@@ -146,14 +146,14 @@ kafka模型的有点在于简单快捷。所有读写都是顺序的。不好的
 
 只有在所有之前消息都已经通过确认时(满足Qa)才能发送确认。如果对于给定的消息，Bookie响应错误或者根本没有响应，则Broker将在新的Bookies上创建新的Fragment(不包含有问题的Bookie)。
 
-![图8.一个Topic在一个Broker上的读取和写入](/Users/temperlee/git-repo/knowledge-repo/Blog-center/content/queue/分布式队列/assets/70-20250624185922896.png)
+![图8.一个Topic在一个Broker上的读取和写入](assets/70-20250624185922896.png)
 图8.一个Topic在一个Broker上的读取和写入
 
 请注意，Broker只会等待Bookies的Qa确认。
 
 读取也是通过拥有此Topic的Broker。作为给定Topic的单一入口点，Broker知道那些偏移量已经安全的保存到Bookkeeper中。它只需要从一个Bookie读取即可进行读取。我们将在第3层中看到它如何利用缓存从其内存缓存中提供读操作而不需要将读取发送到Bookkeeper。
 
-![图9.只需要对一个Bookie进行读取](/Users/temperlee/git-repo/knowledge-repo/Blog-center/content/queue/分布式队列/assets/70-20250624185922953.png)
+![图9.只需要对一个Bookie进行读取](assets/70-20250624185922953.png)
 图9.只需要对一个Bookie进行读取
 
 Pulsar Broker的健康状态由Zookeeper监控。当Broker不可用时(Zookeeper认为)，会发生所有权变更。新的Broker成为Topic的所有者，所有客户端连接都会被重定向到此Broker。此Topic的读写将由新的所有者提供服务。
@@ -196,7 +196,7 @@ Bookkeeper容许将磁盘IO做读写分离。写入都按顺序写入日志文�
 还要考虑到写入会占满入口网络带宽，读取会占满出口网络带宽，但是他们不会相互影响。
 
 优雅的实现了磁盘和网络中读和写的隔离。
-![图10.DbLedgerStorage(Apache Pulsar默认使用)架构的Bookie](/Users/temperlee/git-repo/knowledge-repo/Blog-center/content/queue/分布式队列/assets/70-20250624185922962.png)
+![图10.DbLedgerStorage(Apache Pulsar默认使用)架构的Bookie](assets/70-20250624185922962.png)
 图10.DbLedgerStorage(Apache Pulsar默认使用)架构的Bookie
 
 ## 第三层 - Pulsar Broker 缓存
@@ -265,4 +265,4 @@ Pulsar和Bookeeper都需要Zookeeper。如果Pulsar节点失去所有的Zookeepe
 - Zookeeper存储Pulsar和Bookkeeper的所有元数据。如果Zookeeper不可用整个Pulsar将不可用。
 - 存储可以单独扩展。如果存储是瓶颈，那么只需要添加更多的Bookies，他们会自动承担负载不需要Rebalance。
 
-![图11.概念的总结](/Users/temperlee/git-repo/knowledge-repo/Blog-center/content/queue/分布式队列/assets/70-20250624185922957.png)
+![图11.概念的总结](assets/70-20250624185922957.png)
