@@ -16,7 +16,8 @@ toc: false
 
 {{< cards >}}
   <!-- {{< card link="io" title="Java IO" icon="book-open" tag="IO/Netty等" tagType="error">}} -->
-  {{< card link="db" title="存储与查询" icon="book-open" tag="OLTP、OLAP等" tagType="error">}}
+  {{< card link="db" title="存储与查询" icon="book-open" tag="OLTP" tagType="error">}}
+    {{< card link="query" title="检索技术" icon="book-open" tag="OLAP" tagType="error">}}
   {{< card link="cache" title="缓存" icon="book-open" tag="本地缓存与分布式" tagType="error">}}
   {{< card link="queue" title="队列" icon="book-open" tag="" tagType="error">}}
   {{< card link="lock" title="锁、分布式控制" icon="book-open" tag="本地缓存与分布式" tagType="error">}}
