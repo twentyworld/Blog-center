@@ -5,25 +5,25 @@ type: docs
 
 # kafka
 
-### 1.Kafka起源
+## 1.Kafka起源
 
 ​         Apache Kafka最初由[LinkedIn](https://en.wikipedia.org/wiki/LinkedIn)开发，随后于2011年初开源，2012年10月23日从[Apache Incubator](https://en.wikipedia.org/wiki/Apache_Incubator)毕业。2014年，曾在LinkedIn从事Kafka工作的Jun Rao，Jay Kreps和Neha Narkhede创建了一家名为Confluent的新公司，专注于Kafka开发，根据Quora在2014年发表的一篇文章，Kreps选择以作者[Franz Kafka](https://en.wikipedia.org/wiki/Franz_Kafka)的名字命名该软件，因为该软件是“*a system optimized for writing*”，他喜欢Kafka的作品。（*[引自维基百科Apache Kafka](https://en.wikipedia.org/wiki/Apache_Kafka)*）
 
-### 2.Kafka概述
+## 2.Kafka概述
 
-#### 2.1.Kafka简介
+### 2.1.Kafka简介
 
 ​              Apache Kafka是由LinkedIn采用[Scala](https://en.wikipedia.org/wiki/Scala_(programming_language))和[Java](https://en.wikipedia.org/wiki/Java_(programming_language))开发的开源流处理软件（[open-source](https://en.wikipedia.org/wiki/Open-source_software) [stream-processing](https://en.wikipedia.org/wiki/Stream_processing)）平台，并捐赠给了[Apache Software Foundation](https://en.wikipedia.org/wiki/Apache_Software_Foundation)。该项目旨在提供统一的、高吞吐量、低延迟的平台来处理实时数据流。Kafka可以通过Kafka Connect连接到外部系统，并提供了Kafka Streams（一种Java流处理[库](https://en.wikipedia.org/wiki/Library_(computing))）。Kafka使用经过优化的二进制TCP协议，并使用抽象“message set”将消息分组以减少网络开销并且可以支撑更大的网络数据包，从而使Kafka可以将突发的随机消息写入流转换为线性写入。
 
-#### **2.2.Kafka的特性**
+### **2.2.Kafka的特性**
 
 ​       Kafka是一种分布式的，基于发布/订阅的消息系统，主要特性如下：
 
 
 
-### 3.Kafka架构设计
+## 3.Kafka架构设计
 
-#### 3.1.kafka设计思想
+### 3.1.kafka设计思想
 
 ​              一个最基本的架构是生产者发布一个消息到Kafka的一个Topic ，该Topic的消息存放于的Broker中，消费者订阅这个Topic，然后从Broker中消费消息，下面这个图可以更直观的描述这个场景：
 
@@ -31,45 +31,59 @@ type: docs
 
 ​     上图所示的架构分为三部分：Producer、Kafka Broker、Consumer Group，它们分别运行在不同的节点，下面概括介绍一下Kafka一些设计思想：
 
-   **Consumer Group：**Kafka是按消费组来消费消息，一个消费组下面的所有机器可以组成一个Consumer Group，每条消息只能被该Consumer Group一个Consumer消费，不同Consumer Group可以消费同一条消息**。**
+#### **Consumer Group**
 
-   **消息状态：**在Kafka中，消息是否被消费的状态保存在Consumer中，Broker不会关心消息是否被消费或被谁消费，Consumer会记录一个offset值（指向partition中下一条将要被消费的消息位置），如果offset被错误设置可能导致同一条消息被多次消费或者消息丢失。
+Kafka是按消费组来消费消息，一个消费组下面的所有机器可以组成一个Consumer Group，每条消息只能被该Consumer Group一个Consumer消费，不同Consumer Group可以消费同一条消息**。**
 
-   **消息持久化：**Kafka会把消息持久化到本地文件系统中，并且具有极高的性能。
+#### **消息状态**
 
-   **批量发送：**Kafka支持以消息集合为单位进行批量发送，以提高效率。
+在Kafka中，消息是否被消费的状态保存在Consumer中，Broker不会关心消息是否被消费或被谁消费，Consumer会记录一个offset值（指向partition中下一条将要被消费的消息位置），如果offset被错误设置可能导致同一条消息被多次消费或者消息丢失。
 
-   **Push-and-Pull：**Kafka中的Producer和Consumer采用的是Push-and-Pull模式，即Producer向Broker Push消息，Consumer从Broker Pull消息。
+#### **消息持久化**
 
-   **分区机制（Partition）：**Kafka的Broker端支持消息分区，Producer可以决定把消息发到哪个Partition，在一个Partition中消息的顺序就是Producer发送消息的顺序，一个Topic中的Partition数是可配置的，Partition是Kafka高吞吐量的重要保证。
+Kafka会把消息持久化到本地文件系统中，并且具有极高的性能。
 
-#### 3.2.Kafka系统架构
+#### **批量发送**
+
+Kafka支持以消息集合为单位进行批量发送，以提高效率。
+
+#### **Push-and-Pull**
+
+Kafka中的Producer和Consumer采用的是Push-and-Pull模式，即Producer向Broker Push消息，Consumer从Broker Pull消息。
+
+#### **分区机制（Partition）**
+
+Kafka的Broker端支持消息分区，Producer可以决定把消息发到哪个Partition，在一个Partition中消息的顺序就是Producer发送消息的顺序，一个Topic中的Partition数是可配置的，Partition是Kafka高吞吐量的重要保证。
+
+### 3.2.Kafka系统架构
 
 ![drawio (2)](Kafka.assets/drawio(2).svg)
 
-**kafka拓扑结构**
+#### **kafka拓扑结构**
 
 ​       如上图所示，一个典型的Kafka集群中包含若干Producer、Broker、Consumer Group以及一个Zookeeper集群。Kafka通过Zookeeper管理Broker集群，Producer使用Push模式将消息发送到Broker，Consumer Group使用Pull模式从Broker订阅并消费消息。***（**本文均以Kafka0.9.X版本做阐述，后面不再重复说明）*
 
-- **Broker**
+#### **Broker**
 
-- 一个Kafka集群中的一台服务器就是一个Broker，Broker可以水平无限扩展，同一个Topic中的消息可以分布在多个Broker中。
+一个Kafka集群中的一台服务器就是一个Broker，Broker可以水平无限扩展，同一个Topic中的消息可以分布在多个Broker中。
 
-- **Consumer** : Consumer通过向 Broker 发出一个“Fetch”请求来获取它想要消费的消息，Consumer 的每个请求都在消息文件中指定了对应的 offset，并接收从该位置开始的一大块数据。因此，Consumer 对于该位置的控制就显得极为重要，并且可以在需要的时候通过回退到某个位置再次消费对应的数据。
+#### **Consumer** 
 
-- **Producer** 
+Consumer通过向 Broker 发出一个“Fetch”请求来获取它想要消费的消息，Consumer 的每个请求都在消息文件中指定了对应的 offset，并接收从该位置开始的一大块数据。因此，Consumer 对于该位置的控制就显得极为重要，并且可以在需要的时候通过回退到某个位置再次消费对应的数据。
 
-- 将客户端生产的Message发送到Broker中的Partition Leader节点，Producer可以通过配置保证写入的消息不会丢失， Producer同时支持消息异步发送、批量发送。
+#### **Producer** 
 
-- **Push vs. Pull**
+将客户端生产的Message发送到Broker中的Partition Leader节点，Producer可以通过配置保证写入的消息不会丢失， Producer同时支持消息异步发送、批量发送。
 
-  作为一个消息系统，Kafka遵循了传统的方式，选择由 Producer 向 Broker Push 消息并由 Consumer 从 Broker Pull 消息。一些 logging-centric system，比如 Facebook 的[ Scribe ](https://github.com/facebookarchive/scribe)和 Cloudera 的[ Flume ](http://flume.apache.org/)，采用Push模式。事实上，Push模式和Pull模式各有优劣。Push 模式很难适应消费速率不同的消费者，因为消息发送速率是由Broker决定的。Push 模式的目标是尽可能以最快速度传递消息，但是这样很容易造成 Consumer 来不及处理消息，典型的表现就是拒绝服务以及网络拥塞。而Pull 模式则可以根据Consumer 的消费能力以适当的速率消费消息。对于Kafka而言，Pull 模式更合适。Pull 模式可简化 Broker 的设计，Consumer可自主控制消费消息的速率，同时Consumer可以自己控制消费方式（即可批量消费也可逐条消费），同时还能选择不同的提交方式从而实现不同的传输语义。
+#### **Push vs. Pull**
 
-- **Topic & Partition**
+作为一个消息系统，Kafka遵循了传统的方式，选择由 Producer 向 Broker Push 消息并由 Consumer 从 Broker Pull 消息。一些 logging-centric system，比如 Facebook 的[ Scribe ](https://github.com/facebookarchive/scribe)和 Cloudera 的[ Flume ](http://flume.apache.org/)，采用Push模式。事实上，Push模式和Pull模式各有优劣。Push 模式很难适应消费速率不同的消费者，因为消息发送速率是由Broker决定的。Push 模式的目标是尽可能以最快速度传递消息，但是这样很容易造成 Consumer 来不及处理消息，典型的表现就是拒绝服务以及网络拥塞。而Pull 模式则可以根据Consumer 的消费能力以适当的速率消费消息。对于Kafka而言，Pull 模式更合适。Pull 模式可简化 Broker 的设计，Consumer可自主控制消费消息的速率，同时Consumer可以自己控制消费方式（即可批量消费也可逐条消费），同时还能选择不同的提交方式从而实现不同的传输语义。
 
-  Topic在逻辑上可以被认为是一个Queue，Kafka中每条消息都必须指定一个Topic，一个Topic中的消息可以分布在集群中的多个Broker中，Consumer根据订阅的Topic到对应的Broker上去拉取消息。为了提升整个集群的吞吐量，物理上一个Topic可以分成多个Partition，每个Partition在磁盘上对应一个文件夹，该文件夹下存放了这个Partition的所有消息文件和索引文件。假设有topic1和topic2两个Topic，且分别有13个和19个分区，则整个集群会生成32个文件夹，如下图所示：
+#### **Topic & Partition**
 
-  ![203171650](Kafka.assets/203171650.png)
+Topic在逻辑上可以被认为是一个Queue，Kafka中每条消息都必须指定一个Topic，一个Topic中的消息可以分布在集群中的多个Broker中，Consumer根据订阅的Topic到对应的Broker上去拉取消息。为了提升整个集群的吞吐量，物理上一个Topic可以分成多个Partition，每个Partition在磁盘上对应一个文件夹，该文件夹下存放了这个Partition的所有消息文件和索引文件。假设有topic1和topic2两个Topic，且分别有13个和19个分区，则整个集群会生成32个文件夹，如下图所示：
+
+![203171650](Kafka.assets/203171650.png)
 
  每个消息文件都是一个**log entry**序列，其格式如下图所示：
 
@@ -95,11 +109,13 @@ type: docs
 
 ![drawio (5)](Kafka.assets/drawio(5).svg)
 
-这里要注意，因为Kafka读取消息的时间复杂度为O(1)，即与文件大小无关，所以这里删除过期文件与提高Kafka性能无关。另外，Kafka会为每一个Consumer Group保留一些metadata信息（当前消费的消息的位置，即offset）。这个offset由Consumer控制，Consumer会在消费完一条消息后递增该offset。当然，Consumer也可将offset设成一个较小的值，重新消费一些消息。因为offet由Consumer控制，所以Kafka Broker是无状态的，它不需要标记消息是否被消费过，也不需要通过Broker去保证同一个Consumer Group只有一个Consumer能消费某一条消息，因此也就不需要锁机制，从而保证了Kafka的高吞吐率。 下图中，Consumer 1、2分属于不同的Consumer Group，Consumer 2的offset =4，Consumer 1的offset=3，这表明Consumer Group 1中的Consumer下次会从offset = 3 的message读取， Consumer Group 2中的Consumer下次会从offset = 4 的message读取。注意 这里并没有说是Consumer 1 下次会从offset = 3 的message读取，原因是Consumer 1可能会退出Group ，然后Consumer Group 1 进行重新分配分区。
+这里要注意，因为Kafka读取消息的时间复杂度为O(1)，即与文件大小无关，所以这里删除过期文件与提高Kafka性能无关。另外，Kafka会为每一个Consumer Group保留一些metadata信息（当前消费的消息的位置，即offset）。这个offset由Consumer控制，Consumer会在消费完一条消息后递增该offset。当然，Consumer也可将offset设成一个较小的值，重新消费一些消息。因为offet由Consumer控制，所以Kafka Broker是无状态的，它不需要标记消息是否被消费过，也不需要通过Broker去保证同一个Consumer Group只有一个Consumer能消费某一条消息，因此也就不需要锁机制，从而保证了Kafka的高吞吐率。
+
+ 下图中，Consumer 1、2分属于不同的Consumer Group，Consumer 2的offset =4，Consumer 1的offset=3，这表明Consumer Group 1中的Consumer下次会从offset = 3 的message读取， Consumer Group 2中的Consumer下次会从offset = 4 的message读取。注意 这里并没有说是Consumer 1 下次会从offset = 3 的message读取，原因是Consumer 1可能会退出Group ，然后Consumer Group 1 进行重新分配分区。
 
 ![drawio (6)](Kafka.assets/drawio(6).svg)
 
-#### 3.3 消息发送
+### 3.3 消息发送
 
 ​      Producer其主要功能是负责向Broker发送消息，工作原理可以如下图所示：
 
@@ -107,20 +123,20 @@ type: docs
 
 ​         Producer发送消息到Broker时，会根据Paritition机制选择将消息存储到哪一个Partition。如果Partition机制设置合理，所有消息可以均匀分布到不同的Partition里，这样就实现了负载均衡。如果一个Topic对应一个文件，那这个文件所在的机器I/O将会成为这个Topic的性能瓶颈，而有了Partition后，不同的消息可以并行写入不同的Partition中，极大的提高了吞吐率。所谓的Partition机制也就是Poducer消息partitioning策略，具体有以下几种策略：
 
-​     **轮询策略**
+#### **轮询策略**
 
 1. 轮询策略是Kafka Java客户端生产者的默认策略
 2. 轮询策略的负载均衡表现非常优秀，总能保证消息最大限度地被平均分配到所有分区上，默认情况下它是最合理的分区策略，轮询策略的消息分布如下图所示：
 
 ![drawio (8)](Kafka.assets/drawio(8).svg)
 
-​       **随机策略**
+#### **随机策略**
 
-​              1.随机策略默认从**Partition**列表中随机选择一个，随机策略的消息分布大致如下图所示：
+1. 随机策略默认从**Partition**列表中随机选择一个，随机策略的消息分布大致如下图所示：
 
 ![drawio (9)](Kafka.assets/drawio(9).svg)
 
-​           **按消息键保序策略**
+#### **按消息键保序策略**
 
 1. Kafka允许为每条消息定义**消息键**，简称为Key
 
@@ -130,16 +146,20 @@ type: docs
 
    ![drawio (10)](Kafka.assets/drawio(10).svg)
 
-​        **自定义策略**
+#### **自定义策略**
 
 1. 自定义的分区策略，需要显式地配置生产者端的参数**partitioner.class**
 2. 实现接口：**org.apache.kafka.clients.producer.Partitioner**
 
-#### 3.4 消息消费
+### 3.4 消息消费
 
-​       Kafka消费者API封装了对集群中一系列Broker的访问，可以透明的消费Topic中的数据，消费者在消费的过程中需要记录自己消费了多少数据。很多消息引擎都把这部分信息维护在服务器端，这样做的好处是实现简单，但会有三个主要的问题：1. Broker从此变成有状态的，会影响伸缩性；2. 需要引入应答机制（acknowledgement）增加了系统复杂度。3. 由于要保存很多Consumer的offset信息，必然引入复杂的数据结构，造成资源浪费。而Kafka的方案是每个Consumer Group保存自己的位移信息，那么只需要简单的一个整数表示位置就够了，同时可以引入Checkpoint机制定期持久化，简化了应答机制的实现。
+​       Kafka消费者API封装了对集群中一系列Broker的访问，可以透明的消费Topic中的数据，消费者在消费的过程中需要记录自己消费了多少数据。很多消息引擎都把这部分信息维护在服务器端，这样做的好处是实现简单，但会有三个主要的问题：
 
-​       老版本的位移是提交到Zookeeper中的，但是Zookeeper其实并不适合进行大批量的读写操作，尤其是写操作。从0.9版本开始kafka提供了另一种解决方案：增加了__consumer_offsets这个Topic，将offset信息写入这个Topic，这样Consumer不需要依赖Zookeeper。
+1. Broker从此变成有状态的，会影响伸缩性；
+2. 需要引入应答机制（acknowledgement）增加了系统复杂度。
+3. 由于要保存很多Consumer的offset信息，必然引入复杂的数据结构，造成资源浪费。而Kafka的方案是每个Consumer Group保存自己的位移信息，那么只需要简单的一个整数表示位置就够了，同时可以引入Checkpoint机制定期持久化，简化了应答机制的实现。
+
+老版本的位移是提交到Zookeeper中的，但是Zookeeper其实并不适合进行大批量的读写操作，尤其是写操作。从0.9版本开始kafka提供了另一种解决方案：增加了__consumer_offsets这个Topic，将offset信息写入这个Topic，这样Consumer不需要依赖Zookeeper。
 
 ![drawio (11)](Kafka.assets/drawio(11).svg)
 
@@ -151,7 +171,7 @@ Kafka的Consumer Group是采用Pull的方式来消费消息，那么每个Consum
 
 **Range策略**
 
-​       本文假设我们有个名为 T1 的主题，其包含了5个分区，然后我们有两个消费者（C1，C2）来消费这5个分区里面的数据，而且C1的 num.streams = 2，C2 的 num.streams = 1（这里num.streams指的是消费者的消费线程个数）。Range策略是对每个主题而言的，首先对同一个主题里面的分区按照序号进行排序，并对消费者按照顺序进行排序。在我们的例子里面，排完序的分区将会是0, 1, 2, 3, 4,；消费者线程排完序将会是C1-0, C1-1, C2-0。然后将partitions的个数除以消费者线程的总数来决定每个消费者线程消费几个分区。如果除不尽，那么前面几个消费者线程将会多消费一个分区。在我们的例子里面，我们有5个分区，3个消费者线程， 5 / 3 = 1，而且除不尽，那么消费者线程 C1-0 、C1-1将会多消费一个分区，所以最后分区分配的结果看起来是这样的：C1-0 将消费 0,  1分区，C1-1 将消费 2, 3 分区，C2-0 将消费4分区。具体消费示意图如下所示：
+本文假设我们有个名为 T1 的主题，其包含了5个分区，然后我们有两个消费者（C1，C2）来消费这5个分区里面的数据，而且C1的 num.streams = 2，C2 的 num.streams = 1（这里num.streams指的是消费者的消费线程个数）。Range策略是对每个主题而言的，首先对同一个主题里面的分区按照序号进行排序，并对消费者按照顺序进行排序。在我们的例子里面，排完序的分区将会是0, 1, 2, 3, 4,；消费者线程排完序将会是C1-0, C1-1, C2-0。然后将partitions的个数除以消费者线程的总数来决定每个消费者线程消费几个分区。如果除不尽，那么前面几个消费者线程将会多消费一个分区。在我们的例子里面，我们有5个分区，3个消费者线程， 5 / 3 = 1，而且除不尽，那么消费者线程 C1-0 、C1-1将会多消费一个分区，所以最后分区分配的结果看起来是这样的：C1-0 将消费 0,  1分区，C1-1 将消费 2, 3 分区，C2-0 将消费4分区。具体消费示意图如下所示：
 
 ![drawio (12)](Kafka.assets/drawio(12).svg)
 
@@ -161,13 +181,12 @@ Kafka的Consumer Group是采用Pull的方式来消费消息，那么每个Consum
 
 **RoundRobin策略**
 
-​         使用RoundRobin策略有两个前提条件必须满足：
+使用RoundRobin策略有两个前提条件必须满足：
 
-​	• 同一个Consumer Group里面的所有消费者的num.streams必须相等；
+- 同一个Consumer Group里面的所有消费者的num.streams必须相等；
+- 每个消费者订阅的主题必须相同。
 
-​	• 每个消费者订阅的主题必须相同。
-
-​       所以这里假设前面提到的2个消费者的num.streams = 2。RoundRobin策略的工作原理：将所有主题的分区组成 TopicAndPartition 列表，然后对 TopicAndPartition 列表按照 hashCode 进行排序。在我们的例子里面，假如按照 hashCode 排序完的topic-partitions组依次为T1-5, T1-3, T1-0, T1-2, T1-1, T1-4, ，我们的消费者线程排序为C1-0, C1-1, C2-0, C2-1，最后分区分配的结果为：C1-0 将消费T1-5,T1-1； 分区C1-1 将消费 T1-3, T1-4,分区；C2-0 将消费 T1-0, 分区；C2-1 将消费 T1-2, 分区；消费示意如下图：
+所以这里假设前面提到的2个消费者的num.streams = 2。RoundRobin策略的工作原理：将所有主题的分区组成 TopicAndPartition 列表，然后对 TopicAndPartition 列表按照 hashCode 进行排序。在我们的例子里面，假如按照 hashCode 排序完的topic-partitions组依次为T1-5, T1-3, T1-0, T1-2, T1-1, T1-4, ，我们的消费者线程排序为C1-0, C1-1, C2-0, C2-1，最后分区分配的结果为：C1-0 将消费T1-5,T1-1； 分区C1-1 将消费 T1-3, T1-4,分区；C2-0 将消费 T1-0, 分区；C2-1 将消费 T1-2, 分区；消费示意如下图：
 
 ![drawio(14).svg)](Kafka.assets/drawio(14).svg)
 
