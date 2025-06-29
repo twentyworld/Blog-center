@@ -2,5 +2,5 @@
 title: 4. JVM
 type: docs
 sidebar:
-  open: true
+  open: false
 ---
