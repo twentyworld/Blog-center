@@ -27,6 +27,9 @@ CGLIB底层使用了ASM（一个短小精悍的字节码操作框架）来操作
     <artifactId>cglib</artifactId>
     <version>2.2.2</version>
 </dependency>
+```
+
+```java
 public class HelloImpl implements IHello {
     @Override
     public void sayHello() {
@@ -83,12 +86,11 @@ Enhancer可能是CGLIB中最常用的一个类，和Java1.3动态代理中引入
 ```
 
 > Hello cglib
-> =========
+> 
 > Hello cglib
-> =========
+> 
 > class cglib.SampleClass$$EnhancerByCGLIB$$a9f5b392
-> =========
->
+
 > java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Number
 
 上述代码中，FixedValue用来对所有拦截的方法返回相同的值，从输出我们可以看出来，Enhancer对非final方法test()、toString()、hashCode()进行了拦截，没有对getClass进行拦截。 由于hashCode()方法需要返回一个Number，但是我们返回的是一个String，这解释了上面的程序中为什么会抛出异常。

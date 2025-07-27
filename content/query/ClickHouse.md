@@ -27,11 +27,7 @@ OLAP类业务对于事务需求较少，通常是导入历史日志数据，或�
 分析场景下，随着业务变化要及时调整分析维度、挖掘方法，以尽快发现数据价值、更新业务指标。而[数据仓库](https://www.zhihu.com/search?q=数据仓库&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra={"sourceType"%3A"article"%2C"sourceId"%3A98135840})中通常存储着海量的历史数据，调整代价十分高昂。预先建模技术虽然可以在特定场景中加速计算，但是无法满足业务灵活多变的发展需求，维护成本过高。
 
 
-
-
 ---
-
-
 
 ### 行式存储 VS 列式存储
 
